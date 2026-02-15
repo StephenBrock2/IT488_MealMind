@@ -1,24 +1,12 @@
-import { useState } from 'react'
-import logo from '/mealmind-logo.png'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-          <img src={logo} className="logo" alt="logo" />
-
-      </div>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-  
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
