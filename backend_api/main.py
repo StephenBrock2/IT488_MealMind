@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -8,41 +10,23 @@ count = 0
 class IngredientPydantic(BaseModel):
     name: str
 
+@app.get("/api/health")
+def health():
+    return {"ok": True}
 
-@app.get("/")
-async def read_root():
-    return {"Hello": "World"}
-
-@app.get("/count")
-async def countGet():
+@app.get("/api/count")
+def count_get():
     global count
     count += 1
-    return count
+    return {"count": count}
 
-@app.get("/ingredient")
-async def ingredientGet(name):
-    sql.run('select * from ingredients where name like ?', name)
-    return {"url": "ingredient",
-            "ingredients":[
-                {"name": name},
-                {"name": f"{name} juice"}
-            ]
-            }
+@app.get("/api/ingredient")
+def ingredient_get(name: str):
+    return {"ingredients": [{"name": name}, {"name": f"{name} juice"}]}
 
+@app.post("/api/ingredient")
+def ingredient_put(ingredient: IngredientPydantic):
+    return {"message": f"added ingredient {ingredient.name}"}
 
-@app.post("/ingredient")
-async def ingredientPut(ingredient: IngredientPydantic):
-    return {"message": f"added ingredient {ingredient.name}", "name": ingredient.name}
-
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
-
-class Sql:
-    def run(self, query, *params):
-        pass
-
-sql = Sql()
-
+DIST_DIR = Path(__file__).parent / "frontend_dist"
+app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")
