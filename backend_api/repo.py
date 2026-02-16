@@ -1,18 +1,19 @@
-import os
-from dotenv import load_dotenv
 from abc import ABC, abstractmethod
-from cryptography.fernet import Fernet
-
-load_dotenv()
-key = os.getenv('ENC_DEC_KEY')
-cipher = Fernet(key)
+import bcrypt as bc
 
 class User():
-    def __init__(self, id, username, email, password):
+    def __init__(self, id, username, email, password_hash):
         self.id = id
         self.username = username
         self.email = email
-        self.password = cipher.encrypt(password.encode())
+        self.password = password_hash
+
+    @staticmethod
+    def hash_password(password: str) -> bytes:
+        return bc.hashpw(password.encode(), bc.gensalt())
+    
+    def verify_password(self, password: str) -> bool:
+        return bc.checkpw(password.encode(), self.password)
 
 class Ingredient():
     def __init__(self, id, name):
@@ -25,52 +26,40 @@ class Recipe():
         self.title = title
         self.instructions = instructions
 
+class UserRepository(ABC):
+
+    @abstractmethod
+    def create_user(self, user: User) -> User:
+        pass
+    
+    @abstractmethod
+    def del_user(self, user_id: int) -> None:
+        pass
+
+    @abstractmethod
+    def get_user_by_username(self, username: str) -> User | None:
+        pass
+
 class RecipeRepository(ABC):
 
     @abstractmethod
-    def create_user():
-        pass
-    
-    @abstractmethod
-    def del_user():
+    def create_recipe(self, recipe: Recipe) -> Recipe:
         pass
 
     @abstractmethod
-    def create_recipe():
+    def del_recipe(self, recipe_id: int) -> None:
         pass
 
     @abstractmethod
-    def del_recipe():
+    def list_recipes(self) -> list[Recipe]:
+        pass
+
+class IngredientRepository(ABC):
+
+    @abstractmethod
+    def add_ingredient(self, ingredient: Ingredient) -> Ingredient:
         pass
 
     @abstractmethod
-    def add_recipe():
-        pass
-
-    @abstractmethod
-    def add_ingredient():
-        pass
-
-class TestRepository(RecipeRepository):
-    def __init__(self):
-        self.users = []
-        self.recipes = []
-        self.ingredients = []
-
-    def create_user(self, username):
-        self.users.append(username)
-    
-    def del_user(self, username):
-        self.users.remove(username)
-
-    def create_recipe(self):
-        pass
-
-    def del_recipe(self):
-        pass
-
-    def add_recipe(self):
-        pass
-
-    def add_ingredient(self):
+    def list_ingredients(self) -> list[Ingredient]:
         pass
