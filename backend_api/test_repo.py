@@ -46,4 +46,6 @@ repo_recipe = Test_RecipeRepository()
 test_recipe = Recipe(1, 'Delicious Recipe', 'How to make it?')
 repo_recipe.create_recipe(test_recipe)
 
-print(repo_recipe.recipes)
+recipe = repo_recipe.recipes[1]
+
+print(recipe.title, recipe.instructions)
