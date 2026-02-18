@@ -5,4 +5,4 @@ uvicorn
 pydantic
 pytest
 sqlalchemy
-cryptography
+bcrypt
