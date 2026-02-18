@@ -22,7 +22,9 @@ class Recipe(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(100), nullable=False)
     instructions = Column(Text, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     items = relationship("RecipeIngredient", back_populates="recipe")
+    owner = relationship("User", back_populates="recipes")
 
 
 class Ingredient(Base):
@@ -40,3 +42,4 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    recipes = relationship("Recipe", back_populates="owner")
