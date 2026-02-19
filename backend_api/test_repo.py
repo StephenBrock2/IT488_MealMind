@@ -3,15 +3,27 @@ from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, Ing
 class Test_UserRepository(UserRepository):
     def __init__(self):
         self.users = {}
+        self.next_id = 1
 
     def create_user(self, user: User) -> User:
-        pass
+        for i in self.users.values():
+            if i.username == user.username:
+                return None
+        
+        user.id = self.next_id
+        self.users[self.next_id] = user
+        self.next_id += 1
+        return user
     
     def del_user(self, user_id: int) -> None:
         pass
 
-    def get_user_by_username(self, username: str) -> User | None:
-        pass
+    def get_user_by_username(self, user_name: str) -> User | None:
+        for user in self.users.values():
+            if user.username == user_name:
+                return user.username
+
+        return None
 
 class Test_RecipeRepository(RecipeRepository):
     def __init__(self):
@@ -33,19 +45,17 @@ class Test_RecipeRepository(RecipeRepository):
 class Test_IngredientRepository(IngredientRepository):
     def __init__(self):
         self.ingredients = {}
+        self.next_id = 1
 
     def add_ingredient(self, ingredient: Ingredient) -> Ingredient:
-        pass
+        for i in self.ingredients.values():
+            if i.name == ingredient.name:
+                return i
+
+        ingredient.id = self.next_id
+        self.ingredients[self.next_id] = ingredient
+        self.next_id += 1
+        return ingredient
 
     def list_ingredients(self) -> list[Ingredient]:
         pass
-
-
-repo_recipe = Test_RecipeRepository()
-
-test_recipe = Recipe(1, 'Delicious Recipe', 'How to make it?')
-repo_recipe.create_recipe(test_recipe)
-
-recipe = repo_recipe.recipes[1]
-
-print(recipe.title, recipe.instructions)
