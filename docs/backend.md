@@ -11,4 +11,6 @@ change terminal path to the backend api folder
 `fastapi dev .\main.py`
 
 ### access the api on browser
-localhost:8000
+uvicorn main:app --reload
+http://localhost:8080
+http://localhost:8080/docs
