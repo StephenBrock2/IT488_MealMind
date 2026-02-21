@@ -1,0 +1,41 @@
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect width="600" height="400" fill="#FFF8F2"></rect>
+
+  <!-- Table shadow -->
+  <ellipse cx="300" cy="260" rx="180" ry="40" fill="#E9D8C9"></ellipse>
+
+  <!-- Plate -->
+  <circle cx="300" cy="200" r="140" fill="#FFFFFF"></circle>
+  <circle cx="300" cy="200" r="120" fill="#F4F4F4"></circle>
+
+  <!-- Pasta base -->
+  <ellipse cx="300" cy="200" rx="90" ry="55" fill="#F6C56F"></ellipse>
+
+  <!-- Sauce -->
+  <ellipse cx="300" cy="195" rx="65" ry="40" fill="#E4572E"></ellipse>
+
+  <!-- Tomatoes -->
+  <circle cx="255" cy="180" r="12" fill="#D62828"></circle>
+  <circle cx="335" cy="185" r="10" fill="#D62828"></circle>
+  <circle cx="310" cy="220" r="9" fill="#D62828"></circle>
+
+  <!-- Basil leaves -->
+  <ellipse cx="275" cy="165" rx="10" ry="18" fill="#2A9D8F" transform="rotate(-20 275 165)"></ellipse>
+  <ellipse cx="325" cy="160" rx="10" ry="18" fill="#2A9D8F" transform="rotate(20 325 160)"></ellipse>
+
+  <!-- Fork -->
+  <rect x="430" y="110" width="6" height="180" fill="#B0B0B0"></rect>
+  <rect x="425" y="110" width="16" height="6" fill="#B0B0B0"></rect>
+
+  <!-- Spoon -->
+  <ellipse cx="160" cy="130" rx="15" ry="25" fill="#B0B0B0"></ellipse>
+  <rect x="157" y="155" width="6" height="135" fill="#B0B0B0"></rect>
+
+  <!-- Label -->
+  <text x="300" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#999">
+    Your Recipe Image
+  </text>
+
+</svg>

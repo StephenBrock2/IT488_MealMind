@@ -49,6 +49,7 @@ source venv/bin/activate
 
 Install dependencies:
 pip install fastapi uvicorn
+pip install bcrypt
 
 Navigate to backend_api/ and run:
 uvicorn main:app --reload
