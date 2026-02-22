@@ -35,20 +35,9 @@ In development mode:
 
 ### Start Backend
 
-Navigate to backend_api/
+See docs/backend.md
 
-Create virtual environment (first time only):
-
-Windows:
-py -m venv venv
-venv\Scripts\activate
-
-Mac/Linux:
-python3 -m venv venv
-source venv/bin/activate
-
-Install dependencies:
-pip install fastapi uvicorn
+#### Backend run production
 
 Navigate to backend_api/ and run:
 uvicorn main:app --reload

@@ -6,11 +6,11 @@ client = TestClient(app)
 
 
 def test_count_increments():
-    r1 = client.get("/count")
+    r1 = client.get("/api/count")
     assert r1.status_code == 200
     val1 = r1.json()
 
-    r2 = client.get("/count")
+    r2 = client.get("/api/count")
     assert r2.status_code == 200
     val2 = r2.json()
 
@@ -18,13 +18,13 @@ def test_count_increments():
 
 
 def test_ingredient_get():
-    response = client.get("/ingredient", params={"name": "tomato"})
+    response = client.get("/api/ingredient", params={"name": "tomato"})
     assert response.status_code == 200
     json = response.json()
     assert {"name": "tomato"} in json["ingredients"]
     assert {"name": "tomato juice"} in json["ingredients"]
 
-    response = client.get("/ingredient", params={"name": "apple"})
+    response = client.get("/api/ingredient", params={"name": "apple"})
     assert response.status_code == 200
     json = response.json()
     assert {"name": "apple"} in json["ingredients"]
@@ -32,12 +32,12 @@ def test_ingredient_get():
 
 
 def test_ingredient_post():
-    response = client.post("/ingredient", json={"name": "garlic"})
+    response = client.post("/api/ingredient", json={"name": "garlic"})
     assert response.status_code == 200
     json = response.json()
     assert json["name"] == "garlic"
 
-    response = client.post("/ingredient", json={"name": "apple"})
+    response = client.post("/api/ingredient", json={"name": "apple"})
     assert response.status_code == 200
     json = response.json()
     assert json["name"] == "apple"
@@ -45,5 +45,5 @@ def test_ingredient_post():
 
 
 def test_ingredient_post_missing_name():
-    response = client.post("/ingredient", json={})
+    response = client.post("/api/ingredient", json={})
     assert response.status_code == 422
