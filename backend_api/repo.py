@@ -25,6 +25,7 @@ class Recipe():
         self.id = id
         self.title = title
         self.instructions = instructions
+        self.ingredients = {}
 
 class UserRepository(ABC):
 
@@ -54,10 +55,22 @@ class RecipeRepository(ABC):
     def list_recipes(self) -> list[Recipe]:
         pass
 
+    @abstractmethod
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
+        pass
+
+    @abstractmethod
+    def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
+        pass
+
 class IngredientRepository(ABC):
 
     @abstractmethod
-    def add_ingredient(self, ingredient: Ingredient) -> Ingredient:
+    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
+        pass
+
+    @abstractmethod
+    def del_ingredient(self, ingredient: Ingredient) -> None:
         pass
 
     @abstractmethod
