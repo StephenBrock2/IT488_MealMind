@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
-from dependencies import get_test_recipe_repo
+from dependencies import get_mem_recipe_repo
 from repo import Recipe, RecipeRepository
 
 app = FastAPI()
@@ -35,7 +35,7 @@ def ingredient_put(ingredient: IngredientPydantic):
     return {"message": f"added ingredient {ingredient.name}"}
 
 @app.post("/api/recipe")
-def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_test_recipe_repo)):
+def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_mem_recipe_repo)):
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions)
     saved_recipe = repo.create_recipe(recipe) 
     return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions}

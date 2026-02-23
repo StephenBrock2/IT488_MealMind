@@ -1,6 +1,6 @@
-from test_repo import Test_RecipeRepository
+from mem_repo import MemRecipeRepository
 
-test_recipe_repo = Test_RecipeRepository()
+mem_recipe_repo = MemRecipeRepository()
 
-def get_test_recipe_repo():
-    return test_recipe_repo
+def get_mem_recipe_repo():
+    return mem_recipe_repo
