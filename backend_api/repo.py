@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod
 import bcrypt as bc
 
 class User():
-    def __init__(self, id, username, email, password_hash):
+    def __init__(self, id: int, username: str, email: str, password_hash: bytes):
         self.id = id
         self.username = username
         self.email = email
-        self.password = password_hash
+        self.password_hash = password_hash
 
     @staticmethod
     def hash_password(password: str) -> bytes:
@@ -16,12 +16,12 @@ class User():
         return bc.checkpw(password.encode(), self.password)
 
 class Ingredient():
-    def __init__(self, id, name):
+    def __init__(self, id: int, name: str):
         self.id = id
         self.name = name
 
 class Recipe():
-    def __init__(self, id, title, instructions):
+    def __init__(self, id: int, title: str, instructions: str):
         self.id = id
         self.title = title
         self.instructions = instructions
@@ -35,6 +35,10 @@ class UserRepository(ABC):
     
     @abstractmethod
     def del_user(self, user_id: int) -> None:
+        pass
+
+    @abstractmethod
+    def get_user_by_id(self, username: str) -> User | None:
         pass
 
     @abstractmethod
@@ -60,11 +64,11 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         pass
 
     @abstractmethod
-    def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
+    def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         pass
 
 class IngredientRepository(ABC):
