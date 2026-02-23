@@ -1,28 +1,23 @@
+from fastapi import Request
 from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository
 #from sql_repo import SQLUserRepository, SQLRecipeRepository, SQLIngredientRepository
 
-# define 'dev'/test state versus 'prod'/live state
-state = 'dev'
-
-def state_change(state):
+def state_change(app, state: str):
     if state == 'dev':
-        user_repo = MemUserRepository()
-        recipe_repo = MemRecipeRepository()
-        ingredient_repo = MemIngredientRepository()
-    if state == 'prod':
-        #user_repo = SQLUserRepository()
-        #recipe_repo = SQLRecipeRepository()
-        #ingredient_repo = SQLIngredientRepository()
+        app.state.user_repo = MemUserRepository()
+        app.state.recipe_repo = MemRecipeRepository()
+        app.state.ingredient_repo = MemIngredientRepository()
+    elif state == 'prod':
+        #app.state.user_repo = SQLUserRepository()
+        #app.state.recipe_repo = SQLRecipeRepository()
+        #app.state.ingredient_repo = SQLIngredientRepository()
         pass
-    return user_repo, recipe_repo, ingredient_repo
 
-user_repo, recipe_repo, ingredient_repo = state_change(state)
+def get_user_repo(request: Request):
+    return request.app.state.user_repo
 
-def get_user_repo():
-    return user_repo
+def get_recipe_repo(request: Request):
+    return request.app.state.recipe_repo
 
-def get_recipe_repo():
-    return recipe_repo
-
-def get_ingredient_repo():
-    return ingredient_repo
+def get_ingredient_repo(request: Request):
+    return request.app.state.ingredient_repo

@@ -2,10 +2,13 @@ from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
-from dependencies import get_user_repo, get_recipe_repo, get_ingredient_repo
+from dependencies import state_change, get_user_repo, get_recipe_repo, get_ingredient_repo
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
 app = FastAPI()
+
+# define test state versus live state
+state_change(app, "dev") # "dev" or "prod"
 
 count = 0
 
