@@ -20,6 +20,9 @@ class MemUserRepository(UserRepository):
             self.users.pop(user_id)
         else:
             return None
+        
+    def get_user_by_id(self, username: str) -> User | None:
+        pass
 
     def get_user_by_username(self, user_name: str) -> User | None:
         for user in self.users.values():
@@ -53,7 +56,7 @@ class MemRecipeRepository(RecipeRepository):
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
         pass
 
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
+    def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         pass
 
 class MemIngredientRepository(IngredientRepository):
