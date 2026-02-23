@@ -56,6 +56,10 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
+    def get_recipe_by_title(self, title: str) -> Recipe | None:
+        pass
+
+    @abstractmethod
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
         pass
 

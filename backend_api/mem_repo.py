@@ -47,6 +47,9 @@ class MemRecipeRepository(RecipeRepository):
     def list_recipes(self) -> list[Recipe]:
         pass
 
+    def get_recipe_by_title(self, title: str) -> Recipe | None:
+        pass
+
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
         pass
 
