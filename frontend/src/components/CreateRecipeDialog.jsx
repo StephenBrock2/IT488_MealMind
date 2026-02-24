@@ -13,11 +13,13 @@ import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+const emptyIngredient = () => ({ name: "", quantity: "", unit: "" });
+
 export default function CreateRecipeDialog({ open, onClose, onCreate }) {
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState("");
   const [cookingTimeMinutes, setCookingTimeMinutes] = useState("");
-  const [ingredients, setIngredients] = useState([""]);
+  const [ingredients, setIngredients] = useState([emptyIngredient()]);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -25,8 +27,15 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
   const canSubmit = useMemo(() => {
     const trimmedTitle = title.trim();
     const trimmedInstructions = instructions.trim();
-    const cleanIngredients = ingredients.map((i) => i.trim()).filter(Boolean);
     const timeNum = Number(cookingTimeMinutes);
+
+    const cleanIngredients = ingredients
+      .map((i) => ({
+        name: i.name.trim(),
+        quantity: Number(i.quantity),
+        unit: i.unit.trim(),
+      }))
+      .filter((i) => i.name && i.unit && Number.isFinite(i.quantity) && i.quantity > 0);
 
     return (
       trimmedTitle.length > 0 &&
@@ -42,17 +51,20 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
       setTitle("");
       setInstructions("");
       setCookingTimeMinutes("");
-      setIngredients([""]);
+      setIngredients([emptyIngredient()]);
       setSubmitting(false);
       setError("");
     }
   }, [open]);
 
-  const updateIngredient = (idx, value) => {
-    setIngredients((prev) => prev.map((x, i) => (i === idx ? value : x)));
+  const updateIngredient = (idx, key, value) => {
+    setIngredients((prev) =>
+      prev.map((ing, i) => (i === idx ? { ...ing, [key]: value } : ing))
+    );
   };
 
-  const addIngredient = () => setIngredients((prev) => [...prev, ""]);
+  const addIngredient = () => setIngredients((prev) => [...prev, emptyIngredient()]);
+
   const removeIngredient = (idx) =>
     setIngredients((prev) => prev.filter((_, i) => i !== idx));
 
@@ -61,9 +73,15 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
 
     const payload = {
       title: title.trim(),
-      ingredients: ingredients.map((i) => i.trim()).filter(Boolean),
       instructions: instructions.trim(),
       cookingTimeMinutes: Number(cookingTimeMinutes),
+      ingredients: ingredients
+        .map((i) => ({
+          name: i.name.trim(),
+          quantity: Number(i.quantity),
+          unit: i.unit.trim(),
+        }))
+        .filter((i) => i.name && i.unit && Number.isFinite(i.quantity) && i.quantity > 0),
     };
 
     onCreate?.(payload);
@@ -82,6 +100,7 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
           const data = await res.json();
           msg = data?.detail || data?.message || msg;
         } catch {
+          // ignore
         }
         throw new Error(msg);
       }
@@ -132,13 +151,34 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
 
           <Stack spacing={1}>
             {ingredients.map((ing, idx) => (
-              <Stack key={idx} direction="row" spacing={1} alignItems="center">
+              <Stack key={idx} direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
                 <TextField
-                  label={`Ingredient ${idx + 1}`}
-                  value={ing}
-                  onChange={(e) => updateIngredient(idx, e.target.value)}
+                  label="Name"
+                  value={ing.name}
+                  onChange={(e) => updateIngredient(idx, "name", e.target.value)}
                   fullWidth
                 />
+
+                <TextField
+                  label="Qty"
+                  value={ing.quantity}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "" || /^[0-9]*\.?[0-9]*$/.test(v)) {
+                      updateIngredient(idx, "quantity", v);
+                    }
+                  }}
+                  inputMode="decimal"
+                  sx={{ width: { xs: "100%", sm: 120 } }}
+                />
+
+                <TextField
+                  label="Unit"
+                  value={ing.unit}
+                  onChange={(e) => updateIngredient(idx, "unit", e.target.value)}
+                  sx={{ width: { xs: "100%", sm: 140 } }}
+                />
+
                 <IconButton
                   aria-label="Remove ingredient"
                   onClick={() => removeIngredient(idx)}
