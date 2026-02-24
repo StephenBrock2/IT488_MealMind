@@ -99,9 +99,7 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
         try {
           const data = await res.json();
           msg = data?.detail || data?.message || msg;
-        } catch {
-          // ignore
-        }
+        } catch {}
         throw new Error(msg);
       }
 
