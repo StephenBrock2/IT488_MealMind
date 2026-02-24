@@ -27,7 +27,7 @@ def health():
 def count_get():
     global count
     count += 1
-    return {"count": count}
+    return count
 
 @app.get("/api/ingredient")
 def ingredient_get(name: str):
