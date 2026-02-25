@@ -2,7 +2,7 @@ import psycopg2
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
 def db_connect():
-    conn = psycopg2.connect("dbname=test user=postgres") 
+    conn = psycopg2.connect(dbname='test', user='postgres', password=None) 
     cur = conn.cursor()
     return cur, conn
 
