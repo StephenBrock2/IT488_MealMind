@@ -1,6 +1,6 @@
 from fastapi import Request
 from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository
-#from sql_repo import SQLUserRepository, SQLRecipeRepository, SQLIngredientRepository
+from sql_repo import SQLUserRepository, SQLRecipeRepository, SQLIngredientRepository
 
 def state_change(app, state: str):
     if state == 'dev':
@@ -8,10 +8,9 @@ def state_change(app, state: str):
         app.state.recipe_repo = MemRecipeRepository()
         app.state.ingredient_repo = MemIngredientRepository()
     elif state == 'prod':
-        #app.state.user_repo = SQLUserRepository()
-        #app.state.recipe_repo = SQLRecipeRepository()
-        #app.state.ingredient_repo = SQLIngredientRepository()
-        pass
+        app.state.user_repo = SQLUserRepository()
+        app.state.recipe_repo = SQLRecipeRepository()
+        app.state.ingredient_repo = SQLIngredientRepository()
 
 def get_user_repo(request: Request):
     return request.app.state.user_repo
