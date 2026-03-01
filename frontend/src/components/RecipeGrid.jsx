@@ -81,7 +81,7 @@ export default function RecipeGrid({ recipes }) {
   return (
     <Grid container spacing={2}>
       {list.map((r) => (
-        <Grid key={r.id} item xs={12} sm={6} md={4} lg={3}>
+        <Grid key={r.id} >
           <RecipeCard recipe={r} />
         </Grid>
       ))}
