@@ -2,13 +2,18 @@ from fastapi import FastAPI, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
-from dependencies import state_change, get_user_repo, get_recipe_repo, get_ingredient_repo
+from dependencies import state_change, init_db_startup, get_user_repo, get_recipe_repo, get_ingredient_repo
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
 app = FastAPI()
 
 # define test state versus live state
 state_change(app, "dev") # "dev" or "prod"
+
+@app.on_event("startup")
+def startup():
+    if app.state.env == "prod":
+        init_db_startup()
 
 count = 0
 
