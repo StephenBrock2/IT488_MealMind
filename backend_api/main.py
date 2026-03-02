@@ -19,10 +19,13 @@ count = 0
 
 class IngredientPydantic(BaseModel):
     name: str
+    quantity: float
+    unit: str
 
 class RecipeCreate(BaseModel):
     title: str
     instructions: str
+    ingredients: list[IngredientPydantic]
 
 @app.get("/api/health")
 def health():
@@ -57,7 +60,17 @@ def ingredient_put(ingredient: IngredientPydantic, repo: IngredientRepository = 
 def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions)
     saved_recipe = repo.create_recipe(recipe) 
-    return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions}
+    for i in recipe_data.ingredients:
+        ingredient = Ingredient(id=None, name= i.name)
+        repo.add_ingredient(saved_recipe, ingredient, value= i.quantity, measurement= i.unit)
+    saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
+    ingredient_list = []
+    for i, (quantity, unit) in saved_recipe.ingredients.items():
+        ingredient_list.append({
+            "name": i.name, 
+            "quantity": quantity, 
+            "unit": unit})
+    return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions, "ingredients": ingredient_list}
 
 @app.get("/api/recipe")
 def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
@@ -69,9 +82,16 @@ def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
     return_list = []
+    ingredient_list = []
     for i in recipe_list:
-        recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions}
+        for ing, (quantity, unit) in i.ingredients.items():
+            ingredient_list.append({
+                "name": ing.name, 
+                "quantity": quantity, 
+                "unit": unit})
+        recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": ingredient_list}
         return_list.append(recipe_data)
+        ingredient_list = []
     return return_list
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"

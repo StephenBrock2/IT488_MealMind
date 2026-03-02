@@ -132,6 +132,9 @@ class SQLRecipeRepository(RecipeRepository):
         if row:
             return Recipe(id=row[0], title=row[1], instructions=row[2])
         return None
+    
+    def get_recipe_by_id(self, id: int) -> Recipe | None:
+        pass
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         cur, conn = db_connect()

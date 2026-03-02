@@ -8,7 +8,7 @@ class MemUserRepository(UserRepository):
     def create_user(self, user: User) -> User:
         for i in self.users.values():
             if i.username == user.username:
-                return None
+                return i
         
         user.id = self.next_id
         self.users[self.next_id] = user
@@ -62,6 +62,13 @@ class MemRecipeRepository(RecipeRepository):
                 return i
             else:
                 return None
+            
+    def get_recipe_by_id(self, id: int) -> Recipe | None:
+        if id in self.recipes.keys():
+            recipe = self.recipes[id]
+            return recipe
+        else:
+            return None
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Ingredient:
         if ingredient in recipe.ingredients.keys():
