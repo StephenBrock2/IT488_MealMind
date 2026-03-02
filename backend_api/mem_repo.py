@@ -48,10 +48,17 @@ class MemRecipeRepository(RecipeRepository):
             return None
 
     def list_recipes(self) -> list[Recipe]:
-        pass
+        recipe_list = []
+        for i in self.recipes.values():
+            recipe_list.append(i)
+        return recipe_list
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
-        pass
+        for i in self.recipes.values():
+            if i.title == title:
+                return i
+            else:
+                return None
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
         pass
@@ -81,4 +88,7 @@ class MemIngredientRepository(IngredientRepository):
             return None
 
     def list_ingredients(self) -> list[Ingredient]:
-        pass
+        ingredient_list = []
+        for i in self.ingredients.values():
+            ingredient_list.append(i.title)
+        return ingredient_list

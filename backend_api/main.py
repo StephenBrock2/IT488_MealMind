@@ -8,7 +8,7 @@ from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, Ing
 app = FastAPI()
 
 # define test state versus live state
-state_change(app, "prod") # "dev" or "prod"
+state_change(app, "dev") # "dev" or "prod"
 
 count = 0
 
@@ -53,6 +53,21 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions)
     saved_recipe = repo.create_recipe(recipe) 
     return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions}
+
+@app.get("/api/recipe")
+def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
+    recipe = (recipe_title)
+    return_recipe = repo.get_recipe_by_title(recipe)
+    return {"id": return_recipe.id, "title": return_recipe.title, "instructions": return_recipe.instructions}
+
+@app.get("/api/recipe_list")
+def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
+    recipe_list = repo.list_recipes()
+    return_list = []
+    for i in recipe_list:
+        recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions}
+        return_list.append(recipe_data)
+    return return_list
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")
