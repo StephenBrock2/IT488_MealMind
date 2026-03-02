@@ -21,8 +21,11 @@ class MemUserRepository(UserRepository):
         else:
             return None
         
-    def get_user_by_id(self, username: str) -> User | None:
-        pass
+    def get_user_by_id(self, user_id: int) -> User | None:
+        for id in self.users.values():
+            if id.id == user_id:
+                return id.username
+        return None
 
     def get_user_by_username(self, user_name: str) -> User | None:
         for user in self.users.values():
@@ -60,11 +63,19 @@ class MemRecipeRepository(RecipeRepository):
             else:
                 return None
 
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> Ingredient:
-        pass
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Ingredient:
+        if ingredient in recipe.ingredients.keys():
+            recipe.ingredients.pop(ingredient)
+            recipe.ingredients.update({ingredient: [value, measurement]})
+        else:
+            recipe.ingredients.update({ingredient: [value, measurement]})
+        return recipe
 
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
-        pass
+        if ingredient in recipe.ingredients.keys():
+                recipe.ingredients.pop(ingredient)
+        else:
+            return None
 
 class MemIngredientRepository(IngredientRepository):
     def __init__(self):
