@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
@@ -8,7 +8,7 @@ from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, Ing
 app = FastAPI()
 
 # define test state versus live state
-state_change(app, "dev") # "dev" or "prod"
+state_change(app, "prod") # "dev" or "prod"
 
 count = 0
 
@@ -30,12 +30,23 @@ def count_get():
     return count
 
 @app.get("/api/ingredient")
-def ingredient_get(name: str):
-    return {"ingredients": [{"name": name}, {"name": f"{name} juice"}]}
+def ingredient_get(name=Query(None), repo: IngredientRepository = Depends(get_ingredient_repo)):
+    ingredients = repo.list_ingredients()
+    ingredientSearchedList = []
+
+    if name:
+        for ingredient in ingredients:
+            if name.lower() in ingredient.name.lower():
+                ingredientSearchedList.append(ingredient)
+        return {"ingredients": ingredientSearchedList}
+
+    return {"ingredients": ingredients}
 
 @app.post("/api/ingredient")
-def ingredient_put(ingredient: IngredientPydantic):
-    return {"message": f"added ingredient {ingredient.name}"}
+def ingredient_put(ingredient: IngredientPydantic, repo: IngredientRepository = Depends(get_ingredient_repo)):
+    new_ingredient = Ingredient(id=None, name=ingredient.name)
+    saved_ingredient = repo.create_ingredient(new_ingredient)
+    return {"id": saved_ingredient.id, "name": saved_ingredient.name}
 
 @app.post("/api/recipe")
 def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo)):
