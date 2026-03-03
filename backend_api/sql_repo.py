@@ -133,10 +133,10 @@ class SQLRecipeRepository(RecipeRepository):
             return Recipe(id=row[0], title=row[1], instructions=row[2])
         return None
     
-    def get_recipe_by_id(self, id: int) -> Recipe | None:
+    def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
         pass
 
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> None:
         cur, conn = db_connect()
 
         cur.execute(

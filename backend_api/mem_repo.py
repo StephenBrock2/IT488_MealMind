@@ -64,7 +64,7 @@ class MemRecipeRepository(RecipeRepository):
             else:
                 return None
             
-    def get_recipe_by_id(self, id: int) -> Recipe | None:
+    def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
         if id in self.recipes.keys():
             recipe = self.recipes[id]
             return recipe
