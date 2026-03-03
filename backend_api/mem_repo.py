@@ -56,13 +56,6 @@ class MemRecipeRepository(RecipeRepository):
             recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": i.ingredients}
             recipe_list.append(recipe_data)
         return recipe_list
-    
-    '''
-        return_list = []
-        for i in recipe_list:
-            recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": i.ingredients}
-            return_list.append(recipe_data)
-        '''
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         for i in self.recipes.values():
