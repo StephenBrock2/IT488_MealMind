@@ -21,11 +21,12 @@ class Ingredient():
         self.name = name
 
 class Recipe():
-    def __init__(self, id: int, title: str, instructions: str):
+    def __init__(self, id: int, title: str, instructions: str, cook_time: int):
         self.id = id
         self.title = title
+        self.cook_time = 0
         self.instructions = instructions
-        self.ingredients = {}
+        self.ingredients = []
 
 class UserRepository(ABC):
 

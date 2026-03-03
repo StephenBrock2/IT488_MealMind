@@ -53,8 +53,16 @@ class MemRecipeRepository(RecipeRepository):
     def list_recipes(self) -> list[Recipe]:
         recipe_list = []
         for i in self.recipes.values():
-            recipe_list.append(i)
+            recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": i.ingredients}
+            recipe_list.append(recipe_data)
         return recipe_list
+    
+    '''
+        return_list = []
+        for i in recipe_list:
+            recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": i.ingredients}
+            return_list.append(recipe_data)
+        '''
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         for i in self.recipes.values():
@@ -70,12 +78,14 @@ class MemRecipeRepository(RecipeRepository):
         else:
             return None
 
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Ingredient:
-        if ingredient in recipe.ingredients.keys():
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Recipe:
+        if ingredient in recipe.ingredients:
             recipe.ingredients.pop(ingredient)
-            recipe.ingredients.update({ingredient: [value, measurement]})
-        else:
-            recipe.ingredients.update({ingredient: [value, measurement]})
+        recipe.ingredients.append({
+            "name": ingredient.name, 
+            "quantity": value, 
+            "unit": measurement}
+            )
         return recipe
 
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
