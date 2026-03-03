@@ -181,12 +181,12 @@ class SQLIngredientRepository(IngredientRepository):
         db_disconnect(cur, conn)
         return ingredient
 
-    def del_ingredient(self, ingredient_id: int) -> None:
+    def del_ingredient(self, ingredient: Ingredient) -> None:
         cur, conn = db_connect()
 
         cur.execute(
             "DELETE FROM ingredients WHERE id = %s",
-            (ingredient_id,)
+            (ingredient.id,)
         )
 
         db_disconnect(cur, conn)
