@@ -103,7 +103,7 @@ class MemIngredientRepository(IngredientRepository):
         return ingredient
     
     def del_ingredient(self, ingredient_id: int) -> None:
-        if ingredient_id in self.ingredients.values():
+        if ingredient_id in self.ingredients.keys():
             self.ingredients.pop(ingredient_id)
         else:
             return None
@@ -111,5 +111,5 @@ class MemIngredientRepository(IngredientRepository):
     def list_ingredients(self) -> list[Ingredient]:
         ingredient_list = []
         for i in self.ingredients.values():
-            ingredient_list.append(i.title)
+            ingredient_list.append(i.name)
         return ingredient_list
