@@ -43,6 +43,7 @@ def ingredient_get(name=Query(None), repo: IngredientRepository = Depends(get_in
     ingredients = repo.list_ingredients()
     ingredientSearchedList = []
 
+    # if there is a name query string, filter results by name 
     if name:
         for ingredient in ingredients:
             if name.lower() in ingredient.name.lower():
@@ -57,6 +58,18 @@ def ingredient_put(ingredient: IngredientPydantic, repo: IngredientRepository = 
     saved_ingredient = repo.create_ingredient(new_ingredient)
     return {"id": saved_ingredient.id, "name": saved_ingredient.name}
 
+@app.delete("/api/ingredient/{id}")
+def ingredient_delete(id: int, repo: IngredientRepository = Depends(get_ingredient_repo)):
+    ingredient = Ingredient(id=id, name="")
+    repo.del_ingredient(ingredient)
+    return {"ok": True}
+
+@app.get("/api/recipe")
+def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
+    recipe = (recipe_title)
+    return_recipe = repo.get_recipe_by_title(recipe)
+    return {"id": return_recipe.id, "title": return_recipe.title, "instructions": return_recipe.instructions}
+
 @app.post("/api/recipe")
 def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
@@ -68,11 +81,6 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
-@app.get("/api/recipe")
-def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
-    recipe = (recipe_title)
-    return_recipe = repo.get_recipe_by_title(recipe)
-    return {"id": return_recipe.id, "title": return_recipe.title, "instructions": return_recipe.instructions}
 
 @app.get("/api/recipe_list")
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
