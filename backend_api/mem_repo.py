@@ -1,5 +1,14 @@
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
+def mem_user_seed():
+    pass
+
+def mem_recipe_seed():
+    pass
+
+def mem_ingredient_seed():
+    pass
+
 class MemUserRepository(UserRepository):
     def __init__(self):
         self.users = {}
@@ -65,8 +74,8 @@ class MemRecipeRepository(RecipeRepository):
                 return None
             
     def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
-        if id in self.recipes.keys():
-            recipe = self.recipes[id]
+        if recipe_id in self.recipes.keys():
+            recipe = self.recipes[recipe_id]
             return recipe
         else:
             return None
@@ -113,3 +122,53 @@ class MemIngredientRepository(IngredientRepository):
         for i in self.ingredients.values():
             ingredient_list.append(i.name)
         return ingredient_list
+    
+'''
+repo = MemRecipeRepository()
+in_repo = MemIngredientRepository()
+
+test_recipe = Recipe(None, "World's Best Meatloaf", "How to make meatloaf: ", 80)
+repo.create_recipe(test_recipe)
+
+beef = Ingredient(None, 'Ground Beef')
+onion = Ingredient(None, 'Onion')
+oil = Ingredient(None, 'Olive Oil')
+eggs = Ingredient(None, 'Eggs')
+garlic = Ingredient(None, 'Garlic Cloves')
+ketchup = Ingredient(None, 'Ketchup')
+parsley = Ingredient(None, 'Parsley')
+crumbs = Ingredient(None, 'Panko Bread Crumbs')
+milk = Ingredient(None, 'Milk')
+salt = Ingredient(None, 'Salt')
+seasoning = Ingredient(None, 'Italian Seasoning')
+pepper = Ingredient(None, 'Black Pepper')
+
+in_repo.create_ingredient(beef)
+in_repo.create_ingredient(onion)
+in_repo.create_ingredient(oil)
+in_repo.create_ingredient(eggs)
+in_repo.create_ingredient(garlic)
+in_repo.create_ingredient(ketchup)
+in_repo.create_ingredient(parsley)
+in_repo.create_ingredient(crumbs)
+in_repo.create_ingredient(milk)
+in_repo.create_ingredient(salt)
+in_repo.create_ingredient(seasoning)
+in_repo.create_ingredient(pepper)
+
+repo.add_ingredient(test_recipe, beef, 2, 'lbs')
+repo.add_ingredient(test_recipe, onion, 1, 'cup')
+repo.add_ingredient(test_recipe, oil, 1, 'tsp')
+repo.add_ingredient(test_recipe, eggs, 2, 'large')
+repo.add_ingredient(test_recipe, garlic, 3, 'cloves')
+repo.add_ingredient(test_recipe, ketchup, 2, 'tbsp')
+repo.add_ingredient(test_recipe, parsley, 3, 'tbsp')
+repo.add_ingredient(test_recipe, crumbs, 3/4, 'cup')
+repo.add_ingredient(test_recipe, milk, 1/3, 'cup')
+repo.add_ingredient(test_recipe, salt, 1, 'tsp')
+repo.add_ingredient(test_recipe, seasoning, 1, 'tsp')
+repo.add_ingredient(test_recipe, pepper, 1/2, 'tsp')
+
+print(repo.list_recipes())
+print(in_repo.list_ingredients())
+'''
