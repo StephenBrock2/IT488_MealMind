@@ -1,5 +1,5 @@
 from fastapi import Request
-from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository
+from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository, mem_repo_startup
 from sql_repo import init_db, SQLUserRepository, SQLRecipeRepository, SQLIngredientRepository
 
 def state_change(app, state: str):
@@ -24,3 +24,6 @@ def get_ingredient_repo(request: Request):
 
 def init_db_startup():
     init_db()
+
+def init_mem_startup():
+    mem_repo_startup()

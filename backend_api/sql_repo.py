@@ -156,6 +156,12 @@ class SQLRecipeRepository(RecipeRepository):
 
         db_disconnect(cur, conn)
 
+    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str) -> Recipe:
+        pass
+
+    def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
+        pass
+
 class SQLIngredientRepository(IngredientRepository):
 
     def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
@@ -190,6 +196,9 @@ class SQLIngredientRepository(IngredientRepository):
         )
 
         db_disconnect(cur, conn)
+
+    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
+        pass
 
     def list_ingredients(self) -> list[Ingredient]:
         cur, conn = db_connect()

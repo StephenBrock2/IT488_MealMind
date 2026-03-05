@@ -76,6 +76,14 @@ class RecipeRepository(ABC):
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         pass
 
+    @abstractmethod
+    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str) -> Recipe:
+        pass
+
+    @abstractmethod
+    def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
+        pass
+
 class IngredientRepository(ABC):
 
     @abstractmethod
@@ -84,6 +92,10 @@ class IngredientRepository(ABC):
 
     @abstractmethod
     def del_ingredient(self, ingredient: Ingredient) -> None:
+        pass
+
+    @abstractmethod
+    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
         pass
 
     @abstractmethod
