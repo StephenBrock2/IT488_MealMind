@@ -411,6 +411,5 @@ def mem_repo_startup():
     ingredient_repo = mem_ingredient_repo_seed()
     recipe_repo = mem_recipe_repo_seed(ingredient_repo)
     user_repo = mem_user_repo_seed()
+    
     return ingredient_repo, recipe_repo, user_repo
-
-#ingredient_repo, recipe_repo, user_repo = mem_repo_startup()
