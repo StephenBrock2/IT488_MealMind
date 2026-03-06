@@ -34,6 +34,40 @@ class MemUserRepository(UserRepository):
                 return user.username
         return None
 
+class MemIngredientRepository(IngredientRepository):
+    def __init__(self):
+        self.ingredients = {}
+        self.next_id = 1
+
+    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
+        for i in self.ingredients.values():
+            if i.name == ingredient.name:
+                return i
+
+        ingredient.id = self.next_id
+        self.ingredients[self.next_id] = ingredient
+        self.next_id += 1
+        return ingredient
+    
+    def del_ingredient(self, ingredient_id: int) -> None:
+        if ingredient_id in self.ingredients.keys():
+            self.ingredients.pop(ingredient_id)
+        else:
+            return None
+
+    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
+        if ingredient_id in self.ingredients.keys():
+            ingredient = self.ingredients[ingredient_id]
+            return ingredient
+        else:
+            return None
+
+    def list_ingredients(self) -> list[Ingredient]:
+        ingredient_list = []
+        for i in self.ingredients.values():
+            ingredient_list.append(i.name)
+        return ingredient_list
+
 class MemRecipeRepository(RecipeRepository):
     def __init__(self):
         self.recipes = {}
@@ -74,8 +108,9 @@ class MemRecipeRepository(RecipeRepository):
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Recipe:
         if ingredient in recipe.ingredients:
-            recipe.ingredients.pop(ingredient)
+            recipe.ingredients.remove(ingredient)
         recipe.ingredients.append({
+            "id": ingredient.id,
             "name": ingredient.name, 
             "quantity": value, 
             "unit": measurement}
@@ -84,20 +119,23 @@ class MemRecipeRepository(RecipeRepository):
 
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         if ingredient in recipe.ingredients.keys():
-                recipe.ingredients.pop(ingredient)
+                recipe.ingredients.remove(ingredient)
         else:
             return None
         
-    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str) -> Recipe:
+    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str, repo: MemIngredientRepository) -> Recipe:
         recipe = self.get_recipe_by_id(recipe_id)
-        for ingredient in recipe.ingredients:
-            if ingredient_id == ingredient.id:
-                recipe.ingredients.pop(ingredient)
-            recipe.ingredients.append({
-                "name": ingredient.name, 
-                "quantity": value, 
-                "unit": measurement}
-                )
+        ingredient = repo.get_ingredient_by_id(ingredient_id)
+        for i in recipe.ingredients:
+            if ingredient.id == i["id"]:
+                recipe.ingredients.remove(i)
+                break
+        recipe.ingredients.append({
+            "id": ingredient.id,
+            "name": ingredient.name, 
+            "quantity": value, 
+            "unit": measurement}
+            )
         return recipe
 
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
@@ -107,40 +145,6 @@ class MemRecipeRepository(RecipeRepository):
                 recipe.ingredients.pop(ingredient)
         else:
             return None
-
-class MemIngredientRepository(IngredientRepository):
-    def __init__(self):
-        self.ingredients = {}
-        self.next_id = 1
-
-    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
-        for i in self.ingredients.values():
-            if i.name == ingredient.name:
-                return i
-
-        ingredient.id = self.next_id
-        self.ingredients[self.next_id] = ingredient
-        self.next_id += 1
-        return ingredient
-    
-    def del_ingredient(self, ingredient_id: int) -> None:
-        if ingredient_id in self.ingredients.keys():
-            self.ingredients.pop(ingredient_id)
-        else:
-            return None
-
-    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
-        if ingredient_id in self.ingredients.keys():
-            ingredient = self.ingredients[ingredient_id]
-            return ingredient
-        else:
-            return None
-
-    def list_ingredients(self) -> list[Ingredient]:
-        ingredient_list = []
-        for i in self.ingredients.values():
-            ingredient_list.append(i.name)
-        return ingredient_list
     
 def mem_user_repo_seed():
     pass
@@ -251,8 +255,28 @@ def mem_recipe_repo_seed(ingredient_repo):
     ]
     instructions = 'Heat a pan with a little oil, then add your ingredients and cook until they’re golden and fragrant. Season to taste, let everything simmer briefly so the flavors come together, and serve warm.'
     cook_times = [10, 15, 20, 30, 45, 50, 60, 90, 120]
+    measurements  = [
+    "teaspoon",
+    "tablespoon",
+    "cup",
+    "pint",
+    "quart",
+    "gallon",
+    "milliliter",
+    "liter",
+    "gram",
+    "kilogram",
+    "ounce",
+    "pound",
+    "dash",
+    "pinch",
+    "slice"
+    ]
     for i in recipes:
         recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times)))
+    for recipe in recipe_repo.recipes:
+        for n in range(random.randint(0, 11)):
+            recipe_repo.add_ingredient_by_id(recipe_id=recipe, ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())), value=random.randint(0, 6), measurement=random.choice(measurements), repo=ingredient_repo)
 
     return recipe_repo
 

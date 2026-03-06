@@ -46,6 +46,24 @@ class UserRepository(ABC):
     def get_user_by_username(self, username: str) -> User | None:
         pass
 
+class IngredientRepository(ABC):
+
+    @abstractmethod
+    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
+        pass
+
+    @abstractmethod
+    def del_ingredient(self, ingredient: Ingredient) -> None:
+        pass
+
+    @abstractmethod
+    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
+        pass
+
+    @abstractmethod
+    def list_ingredients(self) -> list[Ingredient]:
+        pass
+
 class RecipeRepository(ABC):
 
     @abstractmethod
@@ -77,27 +95,9 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str) -> Recipe:
+    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str, repo: IngredientRepository) -> Recipe:
         pass
 
     @abstractmethod
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
-        pass
-
-class IngredientRepository(ABC):
-
-    @abstractmethod
-    def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
-        pass
-
-    @abstractmethod
-    def del_ingredient(self, ingredient: Ingredient) -> None:
-        pass
-
-    @abstractmethod
-    def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
-        pass
-
-    @abstractmethod
-    def list_ingredients(self) -> list[Ingredient]:
         pass
