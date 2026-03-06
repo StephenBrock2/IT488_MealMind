@@ -80,8 +80,10 @@ class MemRecipeRepository(RecipeRepository):
         return recipe
 
     def del_recipe(self, recipe_id: int) -> None:
-        if recipe_id in self.recipes.values():
-            self.users.pop(recipe_id)
+        for id in self.recipes.keys():
+            if recipe_id == id:
+                self.recipes.pop(id)
+                return True
         else:
             return None
 
