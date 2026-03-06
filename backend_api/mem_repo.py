@@ -93,11 +93,12 @@ class MemRecipeRepository(RecipeRepository):
         return recipe_list
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
+        title = f"{title}"
         for i in self.recipes.values():
             if i.title == title:
                 return i
-            else:
-                return None
+        else:
+            return None
             
     def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
         if recipe_id in self.recipes.keys():
