@@ -293,7 +293,7 @@ def mem_recipe_repo_seed(ingredient_repo):
         recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times)))
     for recipe in recipe_repo.recipes:
         for n in range(random.randint(1, 10)):
-            recipe_repo.add_ingredient_by_id(recipe_id=recipe, ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())), value=random.randint(0, 6), measurement=random.choice(measurements), repo=ingredient_repo)
+            recipe_repo.add_ingredient_by_id(recipe_id=recipe, ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())), value=random.randint(1, 5), measurement=random.choice(measurements), repo=ingredient_repo)
 
     return recipe_repo
 
@@ -411,5 +411,5 @@ def mem_repo_startup():
     ingredient_repo = mem_ingredient_repo_seed()
     recipe_repo = mem_recipe_repo_seed(ingredient_repo)
     user_repo = mem_user_repo_seed()
-    
+
     return ingredient_repo, recipe_repo, user_repo
