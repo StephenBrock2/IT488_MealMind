@@ -14,8 +14,6 @@ state_change(app, "dev") # "dev" or "prod"
 def startup():
     if app.state.env == "prod":
         init_db_startup()
-    elif app.state.env == "dev":
-        init_mem_startup()
 
 count = 0
 

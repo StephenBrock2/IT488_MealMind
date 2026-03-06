@@ -5,8 +5,9 @@ from sql_repo import init_db, SQLUserRepository, SQLRecipeRepository, SQLIngredi
 def state_change(app, state: str):
     app.state.env = state
     if state == 'dev':
-        app.state.user_repo = MemUserRepository()
-        app.state.recipe_repo = MemRecipeRepository()
+        ingredient_repo, recipe_repo, user_repo = mem_repo_startup()
+        app.state.user_repo = ingredient_repo
+        app.state.recipe_repo = recipe_repo
         app.state.ingredient_repo = MemIngredientRepository()
     elif state == 'prod':
         app.state.user_repo = SQLUserRepository()
