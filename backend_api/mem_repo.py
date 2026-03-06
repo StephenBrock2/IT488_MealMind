@@ -107,42 +107,59 @@ class MemRecipeRepository(RecipeRepository):
             return None
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Recipe:
-        if ingredient in recipe.ingredients:
-            recipe.ingredients.remove(ingredient)
-        recipe.ingredients.append({
-            "id": ingredient.id,
-            "name": ingredient.name, 
-            "quantity": value, 
-            "unit": measurement}
-            )
+        for n, i in enumerate(recipe.ingredients):
+            if i["name"] == ingredient.name:
+                recipe.ingredients[n] = {
+                    "id": ingredient.id,
+                    "name": ingredient.name, 
+                    "quantity": value, 
+                    "unit": measurement
+                    }
+                break
+        else:
+            recipe.ingredients.append({
+                "id": ingredient.id,
+                "name": ingredient.name, 
+                "quantity": value, 
+                "unit": measurement}
+                )
         return recipe
 
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
-        if ingredient in recipe.ingredients.keys():
-                recipe.ingredients.remove(ingredient)
+        for i in recipe.ingredients:
+            if i["name"] == ingredient.name:
+                recipe.ingredients.remove(i)
+                break
         else:
             return None
         
     def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str, repo: MemIngredientRepository) -> Recipe:
         recipe = self.get_recipe_by_id(recipe_id)
         ingredient = repo.get_ingredient_by_id(ingredient_id)
-        for i in recipe.ingredients:
-            if ingredient.id == i["id"]:
-                recipe.ingredients.remove(i)
+        for n, i in enumerate(recipe.ingredients):
+            if i["id"] == ingredient.id:
+                recipe.ingredients[n] = {
+                    "id": ingredient.id,
+                    "name": ingredient.name, 
+                    "quantity": value, 
+                    "unit": measurement
+                    }
                 break
-        recipe.ingredients.append({
-            "id": ingredient.id,
-            "name": ingredient.name, 
-            "quantity": value, 
-            "unit": measurement}
-            )
+        else:
+            recipe.ingredients.append({
+                "id": ingredient.id,
+                "name": ingredient.name, 
+                "quantity": value, 
+                "unit": measurement}
+                )
         return recipe
 
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
         recipe = self.get_recipe_by_id(recipe_id)
-        for ingredient in recipe.ingredients:
-            if ingredient_id == ingredient.id:
-                recipe.ingredients.pop(ingredient)
+        for n, i in enumerate(recipe.ingredients):
+            if i["id"] == ingredient_id:
+                recipe.ingredients.pop(n)
+                break
         else:
             return None
     
@@ -275,7 +292,7 @@ def mem_recipe_repo_seed(ingredient_repo):
     for i in recipes:
         recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times)))
     for recipe in recipe_repo.recipes:
-        for n in range(random.randint(0, 11)):
+        for n in range(random.randint(1, 10)):
             recipe_repo.add_ingredient_by_id(recipe_id=recipe, ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())), value=random.randint(0, 6), measurement=random.choice(measurements), repo=ingredient_repo)
 
     return recipe_repo
