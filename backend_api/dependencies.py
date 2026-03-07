@@ -25,6 +25,3 @@ def get_ingredient_repo(request: Request):
 
 def init_db_startup():
     init_db()
-
-def init_mem_startup():
-    mem_repo_startup()
