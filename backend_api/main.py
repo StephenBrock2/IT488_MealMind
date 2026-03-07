@@ -68,7 +68,7 @@ def ingredient_delete(id: int, repo: IngredientRepository = Depends(get_ingredie
 def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe = (recipe_title)
     return_recipe = repo.get_recipe_by_title(recipe)
-    return {"id": return_recipe.id, "title": return_recipe.title, "instructions": return_recipe.instructions}
+    return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.post("/api/recipe")
 def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
@@ -76,10 +76,11 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     saved_recipe = repo.create_recipe(recipe) 
     for i in recipe_data.ingredients:
         ingredient = Ingredient(id=None, name= i.name)
-        ing_repo.create_ingredient(ingredient)
-        repo.add_ingredient(saved_recipe, ingredient, value= i.quantity, measurement= i.unit)
+        saved_ingredient = ing_repo.create_ingredient(ingredient)
+        saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
+        repo.add_ingredient(saved_recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
-    return {"id": saved_recipe.id, "title": saved_recipe.title, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
+    return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
 
 @app.get("/api/recipe_list")

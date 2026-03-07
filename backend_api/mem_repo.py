@@ -41,9 +41,8 @@ class MemIngredientRepository(IngredientRepository):
 
     def create_ingredient(self, ingredient: Ingredient) -> Ingredient:
         for i in self.ingredients.values():
-            if i.name == ingredient.name:
+            if i.name.lower() == ingredient.name.lower():
                 return i
-
         ingredient.id = self.next_id
         self.ingredients[self.next_id] = ingredient
         self.next_id += 1
@@ -90,7 +89,7 @@ class MemRecipeRepository(RecipeRepository):
     def list_recipes(self) -> list[Recipe]:
         recipe_list = []
         for i in self.recipes.values():
-            recipe_data = {"id": i.id, "title": i.title, "instructions": i.instructions, "ingredients": i.ingredients}
+            recipe_data = {"id": i.id, "title": i.title, "cook_time": i.cook_time, "instructions": i.instructions, "ingredients": i.ingredients}
             recipe_list.append(recipe_data)
         return recipe_list
 
