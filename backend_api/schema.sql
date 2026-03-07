@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS recipes (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     instructions TEXT NOT NULL,
-    user_id INTEGER REFERENCES users(id)
+    user_id INTEGER REFERENCES users(id),
+    cook_time INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS recipe_ingredients (

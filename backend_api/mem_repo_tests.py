@@ -2,6 +2,20 @@ import unittest
 from repo import User, Recipe, Ingredient
 from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository, mem_repo_startup
 
+class TestCreateObjects(unittest.TestCase):
+
+    @unittest.skip('Work in progress')
+    def test_create_ingredient_object(self):
+        pass
+
+    def test_create_recipe_object(self):
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        self.assertIsInstance(recipe, Recipe)
+
+    @unittest.skip('Work in progress')
+    def test_create_recipe_object(self):
+        pass
+
 class TestRecipeCreateFunciton(unittest.TestCase):
 
     def test_create_recipe(self):
@@ -36,21 +50,72 @@ class TestRecipeDeleteFunction(unittest.TestCase):
 
 class TestGetRecipeByTitleFucntion(unittest.TestCase):
 
-    @unittest.skip('Work in progress')
-    def test_get_recipe_by_title(self, title: str) -> Recipe | None:
-        pass
+    def test_get_recipe_by_title(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNotNone(repo.get_recipe_by_title(title="World's Best Chili"))
+
+    def test_get_recipe_by_no_title(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNone(repo.get_recipe_by_title(title=None))
 
 class TestGetRecipeByIDFunction(unittest.TestCase):
 
-    @unittest.skip('Work in progress')
-    def get_recipe_by_id(self, id: int) -> Recipe | None:
-        pass
+    def test_get_recipe_by_id(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNotNone(repo.get_recipe_by_id(recipe_id=1))
+
+    def test_get_recipe_by_no_id(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNone(repo.get_recipe_by_id(recipe_id=None))
 
 class TestAddIngredientToRecipeFunction(unittest.TestCase):
 
+    def test_add_ingredient(self):
+        repo = MemRecipeRepository()
+        ing_repo = MemIngredientRepository()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient = Ingredient(id=None, name='Ing1')
+        repo.create_recipe(recipe)
+        ing_repo.create_ingredient(ingredient)
+        repo.add_ingredient(recipe, ingredient, value=1, measurement='tsp')
+        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": "tsp"}
+        self.assertDictEqual(recipe.ingredients[0], ingredient_data)
+
     @unittest.skip('Work in progress')
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
-        pass
+    def test_add_ingredient_no_name(self):
+        repo = MemRecipeRepository()
+        ing_repo = MemIngredientRepository()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient = Ingredient(id=None, name=None)
+        repo.create_recipe(recipe)
+        ing_repo.create_ingredient(ingredient)
+        repo.add_ingredient(recipe, ingredient, value=1, measurement='tsp')
+        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": "tsp"}
+        self.assertDictEqual(recipe.ingredients[0], ingredient_data)
+
+    @unittest.skip('Work in progress')
+    def test_add_ingredient_no_value(self):
+        repo = MemRecipeRepository()
+        ing_repo = MemIngredientRepository()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient = Ingredient(id=None, name='Ing1')
+        repo.create_recipe(recipe)
+        ing_repo.create_ingredient(ingredient)
+        repo.add_ingredient(recipe, ingredient, value=None, measurement='tsp')
+        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": "tsp"}
+        self.assertDictEqual(recipe.ingredients[0], ingredient_data)
+
+    @unittest.skip('Work in progress')
+    def test_add_ingredient_no_measurement(self):
+        repo = MemRecipeRepository()
+        ing_repo = MemIngredientRepository()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient = Ingredient(id=None, name='Ing1')
+        repo.create_recipe(recipe)
+        ing_repo.create_ingredient(ingredient)
+        repo.add_ingredient(recipe, ingredient, value=1, measurement=None)
+        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": "tsp"}
+        self.assertDictEqual(recipe.ingredients[0], ingredient_data)
 
 class TestRemoveIngredientFromRecipeFunciton(unittest.TestCase):
 
