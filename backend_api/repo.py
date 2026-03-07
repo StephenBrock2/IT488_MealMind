@@ -24,7 +24,7 @@ class Recipe():
     def __init__(self, id: int, title: str, instructions: str, cook_time: int):
         self.id = id
         self.title = title
-        self.cook_time = 0
+        self.cook_time = cook_time
         self.instructions = instructions
         self.ingredients = []
 

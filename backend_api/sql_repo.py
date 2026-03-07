@@ -87,8 +87,8 @@ class SQLRecipeRepository(RecipeRepository):
         cur, conn = db_connect()
 
         cur.execute(
-            "INSERT INTO recipes (title, instructions, user_id) VALUES (%s, %s, %s) RETURNING id",
-            (recipe.title, recipe.instructions, None)
+            "INSERT INTO recipes (title, instructions, user_id, cook_time) VALUES (%s, %s, %s, %s) RETURNING id",
+            (recipe.title, recipe.instructions, recipe.user_id, recipe.cook_time)
         )
         recipe.id = cur.fetchone()[0]
         db_disconnect(cur, conn)
@@ -108,14 +108,14 @@ class SQLRecipeRepository(RecipeRepository):
         cur, conn = db_connect()
 
         cur.execute(
-            "SELECT id, title, instructions, user_id FROM recipes ORDER BY id"
+            "SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id"
         )
         rows = cur.fetchall()
         db_disconnect(cur, conn)
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
             recipes.append(recipe)
 
         return recipes
@@ -123,27 +123,37 @@ class SQLRecipeRepository(RecipeRepository):
         cur, conn = db_connect()
 
         cur.execute(
-            "SELECT id, title, instructions, user_id FROM recipes WHERE title = %s",
+            "SELECT id, title, instructions, user_id, cook_time FROM recipes WHERE title = %s",
             (title,)
         )
 
         row = cur.fetchone()
         db_disconnect(cur, conn)
         if row:
-            return Recipe(id=row[0], title=row[1], instructions=row[2])
+            return Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
         return None
     
     def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
-        pass
-
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> None:
         cur, conn = db_connect()
 
         cur.execute(
-            "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) VALUES (%s, %s, %s)",
-            (recipe.id, ingredient.id, "1 unit")
+            "SELECT id, title, instructions, user_id, cook_time FROM recipes WHERE id = %s",
+            (recipe_id,)
         )
 
+        row = cur.fetchone()
+        db_disconnect(cur, conn)
+        if row:
+            return Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
+        return None
+
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
+        cur, conn = db_connect()
+        quantity = f"{value} {measurement}"
+        cur.execute(
+            "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) VALUES (%s, %s, %s)",
+            (recipe.id, ingredient.id, quantity)
+        )
         db_disconnect(cur, conn)
 
     def remove_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
@@ -156,11 +166,24 @@ class SQLRecipeRepository(RecipeRepository):
 
         db_disconnect(cur, conn)
 
-    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str) -> Recipe:
-        pass
+    def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: float, measurement: str) -> None:
+        cur, conn = db_connect()
+        quantity = f"{value} {measurement}"
+        cur.execute(
+            "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity) VALUES (%s, %s, %s)",
+            (recipe_id, ingredient_id, quantity)
+        )
+        db_disconnect(cur, conn)
 
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
-        pass
+        cur,conn = db_connect()
+
+        cur.execute(
+            "DELETE FROM recipe_ingredients WHERE recipe_id = %s AND ingredient_id = %s",
+            (recipe_id, ingredient_id)
+        )
+
+        db_disconnect(cur, conn)
 
 class SQLIngredientRepository(IngredientRepository):
 
@@ -198,7 +221,18 @@ class SQLIngredientRepository(IngredientRepository):
         db_disconnect(cur, conn)
 
     def get_ingredient_by_id(self, ingredient_id: int) -> Ingredient | None:
-        pass
+        cur, conn = db_connect()
+
+        cur.execute(
+            "SELECT id, name FROM ingredients WHERE id = %s",
+            (ingredient_id,)
+        )
+
+        row = cur.fetchone()
+        db_disconnect(cur, conn)
+        if row:
+            return Ingredient(id=row[0], name=row[1])
+        return None
 
     def list_ingredients(self) -> list[Ingredient]:
         cur, conn = db_connect()
