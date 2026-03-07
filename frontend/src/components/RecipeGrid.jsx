@@ -12,14 +12,6 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 import defaultRecipeImage from "../assets/default-recipe.svg";
 
-const demoRecipes = Array.from({ length: 6 }).map((_, i) => ({
-  id: i + 1,
-  title: "Russian Salad",
-  time: "40 min",
-  rating: 4.6,
-  img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1200&q=60",
-}));
-
 function normalizeRecipe(r) {
   const id = r.id ?? crypto.randomUUID?.() ?? String(Date.now() + Math.random());
 
@@ -28,6 +20,7 @@ function normalizeRecipe(r) {
   const minutes =
     r.cookingTimeMinutes ??
     r.cooking_time_minutes ??
+    r.cook_time ??
     (typeof r.time === "string" ? null : r.time);
 
   const time =
@@ -37,8 +30,7 @@ function normalizeRecipe(r) {
         ? `${Number(minutes)} min`
         : "—";
 
-  const rating =
-    typeof r.rating === "number" ? r.rating : 0; 
+  const rating = typeof r.rating === "number" ? r.rating : 0;
 
   return { ...r, id, img, time, rating };
 }
@@ -47,7 +39,7 @@ function RecipeCard({ recipe }) {
   const r = normalizeRecipe(recipe);
 
   return (
-    <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
+    <Card sx={{ borderRadius: 3, overflow: "hidden" }} data-testid="recipe-card">
       <CardMedia component="img" height="160" image={r.img} alt={r.title} />
       <CardContent sx={{ pb: 1 }}>
         <Typography variant="subtitle1" fontWeight={700}>
@@ -75,13 +67,13 @@ function RecipeCard({ recipe }) {
   );
 }
 
-export default function RecipeGrid({ recipes }) {
-  const list = (recipes && recipes.length ? recipes : demoRecipes).map(normalizeRecipe);
+export default function RecipeGrid({ recipes = [] }) {
+  const list = recipes.map(normalizeRecipe);
 
   return (
     <Grid container spacing={2}>
       {list.map((r) => (
-        <Grid key={r.id} >
+        <Grid key={r.id}>
           <RecipeCard recipe={r} />
         </Grid>
       ))}

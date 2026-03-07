@@ -1,62 +1,61 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
 import RecipeGrid from "../components/RecipeGrid";
 import CreateRecipeDialog from "../components/CreateRecipeDialog";
-import logo from "../assets/mealmind-logo.png";
 import defaultImage from "../assets/default-recipe.svg";
-import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
+import HeroCarousel from "../components/HeroCarousel";
+import Header from "../components/Header";
 
 export default function Home() {
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
+  const [open, setOpen] = useState(false);
   const [recipes, setRecipes] = useState([]);
+  const [recommendedRecipes, setRecommendedRecipes] = useState([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
-  const [savedError, setSavedError] = useState("");
 
   useEffect(() => {
-  let cancelled = false;
+    let cancelled = false;
 
-  const fetchSavedRecipes = async () => {
-    if (!cancelled) {
-      setSavedError("");
-      setLoadingSaved(true);
-    }
-
-    try {
-      const res = await fetch("/api/recipe?limit=6");
-
-      if (res.status === 404) {
-        if (!cancelled) setRecipes([]);
-        return;
-      }
-
-      if (!res.ok) throw new Error(`Request failed (${res.status})`);
-
-      const data = await res.json();
-      const list = Array.isArray(data) ? data : data?.items ?? [];
-
-      if (!cancelled) setRecipes(list.slice(0, 6));
-    } catch (err) {
+    const fetchSavedRecipes = async () => {
       if (!cancelled) {
-        setSavedError("Oops — couldn’t load recipes right now.");
-        setRecipes([]);
+        setLoadingSaved(true);
       }
-    } finally {
-      if (!cancelled) setLoadingSaved(false);
-    }
-  };
 
-  fetchSavedRecipes();
+      try {
+        const res = await fetch("/api/recipe_list");
 
-  return () => {
-    cancelled = true;
-  };
-    }, []);
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data?.items ?? [];
+
+        if (!cancelled) {
+          setRecipes(list.slice(0, 6));
+          setRecommendedRecipes(list.slice(0, 3));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setRecipes([]);
+          setRecommendedRecipes([]);
+        }
+      } finally {
+        if (!cancelled) setLoadingSaved(false);
+      }
+    };
+
+    fetchSavedRecipes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCreate = (newRecipe) => {
     const recipeWithImage = {
@@ -70,25 +69,34 @@ export default function Home() {
 
   return (
     <Box sx={{ bgcolor: "#f6f7f9", minHeight: "100vh" }}>
+      <Header />
       <Container sx={{ py: 4 }}>
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <Box
-            component="img"
-            src={logo}
-            alt="MealMind Logo"
-            sx={{ width: 220, height: "auto", mb: 2, mt: -8}}
-          />
 
-          <Button
-            variant="contained"
-            onClick={() => setOpen(true)}
-            sx={{
-              backgroundColor: "#F6784C",
-              "&:hover": { backgroundColor: "#e5673d" },
-            }}
-          >
-            Create Recipe
-          </Button>
+          <HeroCarousel />
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => setOpen(true)}
+              sx={{
+                backgroundColor: "#F6784C",
+                "&:hover": { backgroundColor: "#e5673d" },
+              }}
+            >
+              Create Recipe
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => navigate("/recipes")}
+              sx={{
+                backgroundColor: "#B7D400",
+                "&:hover": { backgroundColor: "#a6c200" },
+              }}
+            >
+              View All Recipes
+            </Button>
+          </Box>
         </Box>
 
         <Box sx={{ mt: 4 }}>
@@ -96,18 +104,16 @@ export default function Home() {
             Your Recipes
           </Typography>
 
-          {savedError ? <Alert severity="error" sx={{ mb: 2 }}>{savedError}</Alert> : null}
-
           {loadingSaved ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <CircularProgress size={22} />
-              <Typography>Loading saved recipes…</Typography>
+              <Typography>Loading recipes…</Typography>
             </Box>
           ) : recipes.length > 0 ? (
             <RecipeGrid recipes={recipes} />
           ) : (
             <Typography sx={{ opacity: 0.8 }}>
-              No saved recipes yet. Click <b>Create Recipe</b> to add one.
+              No recipes saved.
             </Typography>
           )}
         </Box>
@@ -118,7 +124,14 @@ export default function Home() {
           <Typography variant="h5" fontWeight={800} sx={{ mb: 2 }}>
             Recommended Recipes
           </Typography>
-          <RecipeGrid />
+
+          {recommendedRecipes.length > 0 ? (
+            <RecipeGrid recipes={recommendedRecipes} />
+          ) : (
+            <Typography sx={{ opacity: 0.8 }}>
+              No recommended recipes available.
+            </Typography>
+          )}
         </Box>
 
         <CreateRecipeDialog

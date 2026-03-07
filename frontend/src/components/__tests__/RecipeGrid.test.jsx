@@ -3,14 +3,13 @@ import { describe, it, expect } from "vitest";
 import RecipeGrid from "../RecipeGrid";
 
 describe("RecipeGrid", () => {
-  it("renders demo recipes when no recipes prop is provided", () => {
+  it("renders no recipes when no recipes prop is provided", () => {
     render(<RecipeGrid />);
 
-    const titles = screen.getAllByText("Russian Salad");
-    expect(titles).toHaveLength(6);
+    expect(screen.queryByTestId("recipe-card")).not.toBeInTheDocument();
   });
 
-  it("renders provided recipes instead of demo", () => {
+  it("renders provided recipes", () => {
     const recipes = [
       {
         id: "1",
@@ -58,5 +57,22 @@ describe("RecipeGrid", () => {
 
     const img = screen.getByAltText("Image Test");
     expect(img).toHaveAttribute("src");
+  });
+
+  it("renders cook_time from backend format", () => {
+    const recipes = [
+      {
+        id: "4",
+        title: "Backend Recipe",
+        cook_time: 25,
+        rating: 4.2,
+      },
+    ];
+
+    render(<RecipeGrid recipes={recipes} />);
+
+    expect(screen.getByText("Backend Recipe")).toBeInTheDocument();
+    expect(screen.getByText("25 min")).toBeInTheDocument();
+    expect(screen.getByText("4.2")).toBeInTheDocument();
   });
 });

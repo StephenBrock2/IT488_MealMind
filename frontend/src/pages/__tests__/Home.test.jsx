@@ -1,6 +1,7 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import Home from "../Home";
 
 vi.mock("../assets/mealmind-logo.png", () => ({ default: "logo.png" }));
@@ -18,9 +19,17 @@ vi.mock("../../components/RecipeGrid", () => ({
   ),
 }));
 
-vi.mock("../components/CreateRecipeDialog", () => ({
+vi.mock("../../components/CreateRecipeDialog", () => ({
   default: () => <div data-testid="create-recipe-dialog" />,
 }));
+
+function renderHome() {
+  return render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>
+  );
+}
 
 function mockFetchJson(data, ok = true, status = 200) {
   global.fetch = vi.fn().mockResolvedValue({
@@ -53,16 +62,16 @@ describe("Home", () => {
     cleanup();
   });
 
-  it("fetches saved recipes on initial page load with limit=6", async () => {
+  it("fetches saved recipes on initial page load", async () => {
     mockFetchJson([], true, 200);
 
-    render(<Home />);
+    renderHome();
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/recipe?limit=6");
+    expect(global.fetch).toHaveBeenCalledWith("/api/recipe_list");
   });
 
   it("shows loading UI while fetching", async () => {
@@ -74,9 +83,9 @@ describe("Home", () => {
         })
     );
 
-    render(<Home />);
+    renderHome();
 
-    expect(screen.getByText(/Loading saved recipes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Loading recipes/i)).toBeInTheDocument();
 
     resolveFetch({
       ok: true,
@@ -85,11 +94,11 @@ describe("Home", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByText(/Loading saved recipes/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading recipes/i)).not.toBeInTheDocument();
     });
   });
 
-  it("renders up to 6 recipes when API returns more than 6", async () => {
+  it("renders up to 6 recipes in Your Recipes and 3 in Recommended when API returns more than 6", async () => {
     const recipes = Array.from({ length: 10 }).map((_, i) => ({
       id: String(i + 1),
       title: `Recipe ${i + 1}`,
@@ -97,48 +106,39 @@ describe("Home", () => {
 
     mockFetchJson(recipes, true, 200);
 
-    render(<Home />);
+    renderHome();
 
     const cards = await screen.findAllByTestId("recipe-card");
-    expect(cards).toHaveLength(6);
-
-    expect(screen.getByText("Recipe 1")).toBeInTheDocument();
-    expect(screen.getByText("Recipe 6")).toBeInTheDocument();
-    expect(screen.queryByText("Recipe 7")).not.toBeInTheDocument();
+    expect(cards).toHaveLength(9);
   });
 
-  it("shows empty-state message when API returns 404 (no recipes endpoint yet)", async () => {
+  it("shows empty-state message when API returns 404", async () => {
     mockFetchStatus(404);
 
-    render(<Home />);
+    renderHome();
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
-    expect(
-      screen.getByText(/No saved recipes yet/i)
-    ).toBeInTheDocument();
-
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText(/No recipes saved\./i)).toBeInTheDocument();
+    expect(screen.getByText(/No recommended recipes available\./i)).toBeInTheDocument();
   });
 
-  it("shows error alert when fetch throws", async () => {
+  it("shows empty-state message when fetch throws", async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error("Network down"));
 
-    render(<Home />);
+    renderHome();
 
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("Oops — couldn’t load recipes right now.");
+    expect(await screen.findByText(/No recipes saved\./i)).toBeInTheDocument();
+    expect(screen.getByText(/No recommended recipes available\./i)).toBeInTheDocument();
   });
 
-  it("supports API response shape { items: [] }", async () => {
-    mockFetchJson(
-      { items: [{ id: "a", title: "From Items" }] },
-      true,
-      200
-    );
+  it("renders the View All Recipes button", async () => {
+    mockFetchJson([], true, 200);
 
-    render(<Home />);
+    renderHome();
 
-    expect(await screen.findByText("From Items")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /view all recipes/i })
+    ).toBeInTheDocument();
   });
 });

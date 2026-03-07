@@ -69,47 +69,47 @@ export default function CreateRecipeDialog({ open, onClose, onCreate }) {
     setIngredients((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async () => {
-    setError("");
+  setError("");
 
-    const payload = {
-      title: title.trim(),
-      instructions: instructions.trim(),
-      cookingTimeMinutes: Number(cookingTimeMinutes),
-      ingredients: ingredients
-        .map((i) => ({
-          name: i.name.trim(),
-          quantity: Number(i.quantity),
-          unit: i.unit.trim(),
-        }))
-        .filter((i) => i.name && i.unit && Number.isFinite(i.quantity) && i.quantity > 0),
-    };
-
-    onCreate?.(payload);
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/recipe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        let msg = `Request failed (${res.status})`;
-        try {
-          const data = await res.json();
-          msg = data?.detail || data?.message || msg;
-        } catch {}
-        throw new Error(msg);
-      }
-
-      onClose?.();
-    } catch (e) {
-      setError(e?.message || "Failed to save recipe.");
-    } finally {
-      setSubmitting(false);
-    }
+  const payload = {
+    title: title.trim(),
+    instructions: instructions.trim(),
+    cook_time: Number(cookingTimeMinutes),
+    ingredients: ingredients
+      .map((i) => ({
+        name: i.name.trim(),
+        quantity: Number(i.quantity),
+        unit: i.unit.trim(),
+      }))
+      .filter((i) => i.name && i.unit && Number.isFinite(i.quantity) && i.quantity > 0),
   };
+
+  setSubmitting(true);
+  try {
+    const res = await fetch("/api/recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      let msg = `Request failed (${res.status})`;
+      try {
+        const data = await res.json();
+        msg = data?.detail || data?.message || msg;
+      } catch {}
+      throw new Error(msg);
+    }
+
+    const savedRecipe = await res.json();
+    onCreate?.(savedRecipe);
+    onClose?.();
+  } catch (e) {
+    setError(e?.message || "Failed to save recipe.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <Dialog open={open} onClose={submitting ? undefined : onClose} fullWidth maxWidth="sm">
