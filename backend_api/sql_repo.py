@@ -119,6 +119,13 @@ class SQLRecipeRepository(RecipeRepository):
             recipes.append(recipe)
 
         return recipes
+    
+    def list_six_recipes(self) -> list:
+        pass
+
+    def get_random_recipe(self) -> Recipe:
+        pass
+
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         cur, conn = db_connect()
 

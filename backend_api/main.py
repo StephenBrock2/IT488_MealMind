@@ -82,11 +82,20 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
-
 @app.get("/api/recipe_list")
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
     return recipe_list
+
+@app.get("/api/recipe_reel")
+def list_six_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
+    six_list = repo.list_six_recipes()
+    return six_list
+
+@app.get("/api/recipe_random")
+def get_random_recipe(repo: RecipeRepository = Depends(get_recipe_repo)):
+    return_recipe = repo.get_random_recipe()
+    return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")

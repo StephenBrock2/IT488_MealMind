@@ -92,6 +92,18 @@ class MemRecipeRepository(RecipeRepository):
             recipe_data = {"id": i.id, "title": i.title, "cook_time": i.cook_time, "instructions": i.instructions, "ingredients": i.ingredients}
             recipe_list.append(recipe_data)
         return recipe_list
+    
+    def list_six_recipes(self) -> list:
+        recipe_list = []
+        for i in range(1, 7):
+            recipe = random.choice(list(self.recipes.values()))
+            recipe_data = {"id": recipe.id, "title": recipe.title, "cook_time": recipe.cook_time, "instructions": recipe.instructions, "ingredients": recipe.ingredients}
+            recipe_list.append(recipe_data)
+        return recipe_list
+
+    def get_random_recipe(self) -> Recipe:
+        recipe = random.choice(list(self.recipes.values()))
+        return recipe
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         title = f"{title}"

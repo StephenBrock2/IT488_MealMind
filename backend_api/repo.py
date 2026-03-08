@@ -79,6 +79,14 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
+    def list_six_recipes(self) -> list:
+        pass
+
+    @abstractmethod
+    def get_random_recipe(self) -> Recipe:
+        pass
+
+    @abstractmethod
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         pass
 
