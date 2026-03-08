@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 def db_connect():
+    DATABASE_URL = os.getenv("DATABASE_URL")
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
     return cur, conn
@@ -153,6 +153,24 @@ class SQLRecipeRepository(RecipeRepository):
         if row:
             return Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
         return None
+
+    def get_latest_recipes(self, limit: int = 6) -> list[Recipe]:
+        cur, conn = db_connect()
+
+        cur.execute(
+            "SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id DESC LIMIT %s",
+            (limit,)
+        )
+
+        rows = cur.fetchall()
+        db_disconnect(cur, conn)
+
+        recipes = []
+        for row in rows:
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
+            recipes.append(recipe)
+
+        return recipes
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         cur, conn = db_connect()

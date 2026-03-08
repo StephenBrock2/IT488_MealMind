@@ -21,11 +21,12 @@ class Ingredient():
         self.name = name
 
 class Recipe():
-    def __init__(self, id: int, title: str, instructions: str, cook_time: int):
+    def __init__(self, id: int, title: str, instructions: str, cook_time: int, user_id: int = None):
         self.id = id
         self.title = title
         self.cook_time = cook_time
         self.instructions = instructions
+        self.user_id = user_id
         self.ingredients = []
 
 class UserRepository(ABC):
@@ -92,6 +93,10 @@ class RecipeRepository(ABC):
 
     @abstractmethod
     def get_recipe_by_id(self, id: int) -> Recipe | None:
+        pass
+
+    @abstractmethod
+    def get_latest_recipes(self, limit: int = 6) -> list[Recipe]:
         pass
 
     @abstractmethod
