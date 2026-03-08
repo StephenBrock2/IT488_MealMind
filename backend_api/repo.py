@@ -96,10 +96,6 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def get_latest_recipes(self, limit: int = 6) -> list[Recipe]:
-        pass
-
-    @abstractmethod
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
         pass
 

@@ -121,7 +121,17 @@ class SQLRecipeRepository(RecipeRepository):
         return recipes
     
     def list_six_recipes(self) -> list:
-        pass
+        cur, conn = db_connect()
+        cur.execute("SELECT * FROM recipes ORDER BY id DESC LIMIT 6")
+        rows = cur.fetchall()
+        db_disconnect(cur, conn)
+
+        recipes = []
+        for row in rows:
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4])
+            recipes.append(recipe)
+
+        return recipes
 
     def get_random_recipe(self) -> Recipe:
         pass
@@ -153,24 +163,6 @@ class SQLRecipeRepository(RecipeRepository):
         if row:
             return Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
         return None
-
-    def get_latest_recipes(self, limit: int = 6) -> list[Recipe]:
-        cur, conn = db_connect()
-
-        cur.execute(
-            "SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id DESC LIMIT %s",
-            (limit,)
-        )
-
-        rows = cur.fetchall()
-        db_disconnect(cur, conn)
-
-        recipes = []
-        for row in rows:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
-            recipes.append(recipe)
-
-        return recipes
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         cur, conn = db_connect()

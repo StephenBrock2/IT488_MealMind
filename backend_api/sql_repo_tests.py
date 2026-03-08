@@ -120,7 +120,7 @@ class TestSQLRecipeRepository(unittest.TestCase):
         self.assertEqual(found_recipe.instructions, 'Cook pretty patty. Assemble sandwich')
         self.assertEqual(found_recipe.cook_time, 15)
 
-    def test_get_latest_recipes(self):
+    def test_list_six_recipes(self):
         repo = SQLRecipeRepository()
         recipes = [
             ('Krabby Patty', 'Cook patty. Assemble sandwich', 15),
@@ -137,7 +137,7 @@ class TestSQLRecipeRepository(unittest.TestCase):
             recipe = Recipe(id = None, title = title, instructions = instructions, user_id = None, cook_time = cook_time)
             repo.create_recipe(recipe)
 
-        latest_recipes = repo.get_latest_recipes()
+        latest_recipes = repo.list_six_recipes()
 
         self.assertIsInstance(latest_recipes, list)
         self.assertLessEqual(len(latest_recipes), 6)
