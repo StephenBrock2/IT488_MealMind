@@ -13,7 +13,11 @@ class User():
         return bc.hashpw(password.encode(), bc.gensalt())
     
     def verify_password(self, password: str) -> bool:
-        return bc.checkpw(password.encode(), self.password)
+        return bc.checkpw(password.encode(), self.password_hash)
+    
+user1 =User(id=None, username="Stephen1", email="testing@email.com", password_hash=User.hash_password('badpassword'))
+print(type(user1))
+print(user1.verify_password('badpassword'))
 
 class Ingredient():
     def __init__(self, id: int, name: str):
