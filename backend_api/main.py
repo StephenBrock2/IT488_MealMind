@@ -28,6 +28,12 @@ class RecipeCreate(BaseModel):
     cook_time: int
     ingredients: list[IngredientPydantic]
 
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
 @app.get("/api/health")
 def health():
     return {"ok": True}
@@ -96,6 +102,13 @@ def list_six_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
 def get_random_recipe(repo: RecipeRepository = Depends(get_recipe_repo)):
     return_recipe = repo.get_random_recipe()
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
+
+@app.post("/api/user")
+def user_post(user_data: UserCreate, repo: UserRepository = Depends(get_user_repo)):
+    password_hash = User.hash_password(user_data.password)
+    user = User(id=None, username=user_data.username, email=user_data.email, password_hash=password_hash)
+    saved_user = repo.create_user(user)
+    return {"id": saved_user.id, "username": saved_user.username, "email": saved_user.email}
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")

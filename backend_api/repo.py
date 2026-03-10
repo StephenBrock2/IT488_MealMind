@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 import bcrypt as bc
 
 class User():
-    def __init__(self, id: int, username: str, email: str, password_hash: bytes):
+    def __init__(self, id: int, username: str, email: str, password_hash: bytes, password_salt: bytes = None):
         self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
+        self.password_salt = password_salt
 
     @staticmethod
     def hash_password(password: str) -> bytes:

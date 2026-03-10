@@ -1,4 +1,4 @@
-CREATE TABLE If NOT EXISTS users (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -6,12 +6,12 @@ CREATE TABLE If NOT EXISTS users (
     salt VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS ingredients (
+CREATE TABLE ingredients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS recipes (
+CREATE TABLE recipes (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     instructions TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS recipes (
     cook_time INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS recipe_ingredients (
+CREATE TABLE recipe_ingredients (
     recipe_id INTEGER REFERENCES recipes(id),
     ingredient_id INTEGER REFERENCES ingredients(id),
     quantity VARCHAR(50) NOT NULL,
