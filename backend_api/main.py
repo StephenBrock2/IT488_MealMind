@@ -8,7 +8,7 @@ from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, Ing
 app = FastAPI()
 
 # define test state versus live state
-state_change(app, "dev") # "dev" or "prod"
+state_change(app, "prod") # "dev" or "prod"
 
 @app.on_event("startup")
 def startup():

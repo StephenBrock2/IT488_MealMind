@@ -1,6 +1,11 @@
 import pytest
+import random
 from fastapi.testclient import TestClient
 from main import app
+from dependencies import state_change
+
+# Switch to dev (in-memory) mode for testing
+state_change(app, "prod")
 
 client = TestClient(app)
 
@@ -17,31 +22,52 @@ def test_count_increments():
     assert val2 == val1 + 1
 
 
-def test_ingredient_get():
-    response = client.get("/api/ingredient", params={"name": "tomato"})
+def test_ingredient_post_then_get():
+    created_ids = []
+    rand = random.randint(1000, 9999)
+
+    apple_name = f"test{rand}_apple"
+    apple_juice_name = f"test{rand}_apple juice"
+    tomato_juice_name = f"test{rand}_tomato juice"
+
+    response = client.post("/api/ingredient", json={"name": apple_name, "quantity": 2, "unit": "whole"})
     assert response.status_code == 200
     json = response.json()
-    assert {"name": "tomato"} in json["ingredients"]
-    assert {"name": "tomato juice"} in json["ingredients"]
+    assert json["name"] == apple_name
+    created_ids.append(json["id"])
 
-    response = client.get("/api/ingredient", params={"name": "apple"})
+    response = client.post("/api/ingredient", json={"name": apple_juice_name, "quantity": 1, "unit": "cup"})
     assert response.status_code == 200
     json = response.json()
-    assert {"name": "apple"} in json["ingredients"]
-    assert {"name": "apple juice"} in json["ingredients"]
+    assert json["name"] == apple_juice_name
+    created_ids.append(json["id"])
 
-
-def test_ingredient_post():
-    response = client.post("/api/ingredient", json={"name": "garlic"})
+    response = client.post("/api/ingredient", json={"name": tomato_juice_name, "quantity": 1, "unit": "cup"})
     assert response.status_code == 200
     json = response.json()
-    assert json["name"] == "garlic"
+    assert json["name"] == tomato_juice_name
+    created_ids.append(json["id"])
 
-    response = client.post("/api/ingredient", json={"name": "apple"})
+    response = client.get("/api/ingredient", params={"name": f"test{rand}_tomato"})
     assert response.status_code == 200
     json = response.json()
-    assert json["name"] == "apple"
+    ingredient_names = [i["name"] for i in json["ingredients"]]
+    assert tomato_juice_name in ingredient_names
 
+    response = client.get("/api/ingredient", params={"name": f"test{rand}_apple"})
+    assert response.status_code == 200
+    json = response.json()
+    ingredient_names = [i["name"] for i in json["ingredients"]]
+    assert apple_name in ingredient_names
+    assert apple_juice_name in ingredient_names
+
+    for ingredient_id in created_ids:
+        client.delete(f"/api/ingredient/{ingredient_id}")
+
+    response = client.get("/api/ingredient", params={"name": f"test{rand}"})
+    assert response.status_code == 200
+    json = response.json()
+    assert json["ingredients"] == []
 
 
 def test_ingredient_post_missing_name():
