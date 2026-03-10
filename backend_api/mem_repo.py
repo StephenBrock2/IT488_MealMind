@@ -33,6 +33,13 @@ class MemUserRepository(UserRepository):
             if user.username == user_name:
                 return user.username
         return None
+    
+    def get_all_users(self):
+        user_list = []
+        for i in self.users.values():
+            user_data = {"id": i.id, "name": i.username, "email": i.email, "password": isinstance(i.password_hash, bytes)}
+            user_list.append(user_data)
+        return user_list
 
 class MemIngredientRepository(IngredientRepository):
     def __init__(self):

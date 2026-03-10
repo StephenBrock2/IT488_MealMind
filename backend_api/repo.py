@@ -111,3 +111,19 @@ class RecipeRepository(ABC):
     @abstractmethod
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
         pass
+
+class MealPlanRepository(ABC):
+
+    def create_mealplan(self):
+        pass
+
+    def del_mealplan(self):
+        pass
+
+class PantryRepository(ABC):
+
+    def create_pantry(self):
+        pass
+
+    def del_pantry(self):
+        pass
