@@ -185,7 +185,12 @@ class MemRecipeRepository(RecipeRepository):
             return None
     
 def mem_user_repo_seed():
-    pass
+    user_repo = MemUserRepository()
+    password = User.hash_password('1234')
+    for i in range(1, 101):
+        user = User(id=None, username=f'User{i}', email=f'user{i}@email.com', password_hash=password, password_salt=None)
+        user_repo.create_user(user)
+    return user_repo
 
 def mem_recipe_repo_seed(ingredient_repo):
     recipe_repo = MemRecipeRepository()
