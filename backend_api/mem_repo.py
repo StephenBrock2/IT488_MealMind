@@ -1,10 +1,17 @@
-from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
+from repo import User, Recipe, Ingredient, MealPlan, UserRepository, RecipeRepository, IngredientRepository
 import random
 
 class MemUserRepository(UserRepository):
     def __init__(self):
         self.users = {}
         self.next_id = 1
+        self.user_tokens = []
+
+        self.mealplans = {}
+        self.next_meal_id = 1
+
+        self.pantries = {}
+        self.next_pantry_id = 1
 
     def create_user(self, user: User) -> User:
         for i in self.users.values():
@@ -40,6 +47,21 @@ class MemUserRepository(UserRepository):
             user_data = {"id": i.id, "name": i.username, "email": i.email, "password": isinstance(i.password_hash, bytes)}
             user_list.append(user_data)
         return user_list
+
+    def user_login(username: str, password: str) -> User | None:
+        pass
+
+    def create_mealplan(self, meal_plan: MealPlan) -> MealPlan:
+        pass
+
+    def del_mealplan(self, meal_plan_id: int) -> None:
+        pass
+
+    def add_recipe_to_mealplan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
+        pass
+
+    def remove_recipe_from_mealplan(self, meal_plan_id: int, recipe_id: int) -> None:
+        pass
 
 class MemIngredientRepository(IngredientRepository):
     def __init__(self):
@@ -183,7 +205,7 @@ class MemRecipeRepository(RecipeRepository):
                 break
         else:
             return None
-    
+   
 def mem_user_repo_seed():
     user_repo = MemUserRepository()
     password = User.hash_password('1234')

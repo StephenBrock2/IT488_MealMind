@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
+from typing import Optional
 from dependencies import state_change, init_db_startup, get_user_repo, get_recipe_repo, get_ingredient_repo
 from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
 
@@ -33,6 +34,13 @@ class UserCreate(BaseModel):
     email: str
     password: str
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class MealPlanCreate(BaseModel):
+    username: str
+    plans: dict[str, list[Optional[int]]]
 
 @app.get("/api/health")
 def health():
@@ -104,11 +112,23 @@ def get_random_recipe(repo: RecipeRepository = Depends(get_recipe_repo)):
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.post("/api/user")
-def user_post(user_data: UserCreate, repo: UserRepository = Depends(get_user_repo)):
+def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_repo)):
     password_hash = User.hash_password(user_data.password)
     user = User(id=None, username=user_data.username, email=user_data.email, password_hash=password_hash)
     saved_user = repo.create_user(user)
     return {"id": saved_user.id, "username": saved_user.username, "email": saved_user.email}
+
+@app.post("/api/user/login")
+def user_login(user_data: UserLogin, repo: UserRepository = Depends(get_user_repo)):
+    return {"Login Success"}
+
+@app.post("/api/user/mealplan")
+def create_meal_plan(mealplan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+    return {"Create Success"}
+
+@app.get("/api/user/mealplan")
+def get_meal_plan(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    return {"Get Success"}
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")

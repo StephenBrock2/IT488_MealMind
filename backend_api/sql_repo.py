@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
+from repo import User, Recipe, Ingredient, MealPlan, UserRepository, RecipeRepository, IngredientRepository
 
 load_dotenv()
 
@@ -80,6 +80,21 @@ class SQLUserRepository(UserRepository):
         if row:
             return User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
         return None
+    
+    def user_login(username: str, password: str) -> User | None:
+        pass
+
+    def create_mealplan(self, meal_plan: MealPlan) -> MealPlan:
+        pass
+
+    def del_mealplan(self, meal_plan_id: int) -> None:
+        pass
+
+    def add_recipe_to_mealplan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
+        pass
+
+    def remove_recipe_from_mealplan(self, meal_plan_id: int, recipe_id: int) -> None:
+        pass
 
 class SQLRecipeRepository(RecipeRepository):
 

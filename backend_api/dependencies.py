@@ -6,7 +6,7 @@ def state_change(app, state: str):
     app.state.env = state
     if state == 'dev':
         ingredient_repo, recipe_repo, user_repo = mem_repo_startup()
-        app.state.user_repo = MemUserRepository()
+        app.state.user_repo = user_repo
         app.state.recipe_repo = recipe_repo
         app.state.ingredient_repo = ingredient_repo
     elif state == 'prod':

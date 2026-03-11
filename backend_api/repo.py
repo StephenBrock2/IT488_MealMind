@@ -8,6 +8,13 @@ class User():
         self.email = email
         self.password_hash = password_hash
         self.password_salt = password_salt
+        self.login_state = False
+        self.login_token = ''
+
+        self.created_recipes = {}
+        self.saved_recipes = {}
+        self.meal_plans = {}
+        self.pantry = {}
 
     @staticmethod
     def hash_password(password: str) -> bytes:
@@ -30,6 +37,11 @@ class Recipe():
         self.user_id = user_id
         self.ingredients = []
 
+class MealPlan():
+    def __init__(self, id: int, plans: dict):
+        self.id = id
+        self.plans = {}
+
 class UserRepository(ABC):
 
     @abstractmethod
@@ -46,6 +58,35 @@ class UserRepository(ABC):
 
     @abstractmethod
     def get_user_by_username(self, username: str) -> User | None:
+        pass
+
+    @abstractmethod
+    def user_login(username: str, password: str) -> User | None:
+        pass
+
+    @abstractmethod
+    def create_mealplan(self, user_id: int, meal_plan: MealPlan) -> User:
+        pass
+
+    @abstractmethod
+    def del_mealplan(self, user_id: int, meal_plan_id: int) -> None:
+        pass
+
+    @abstractmethod
+    def add_recipe_to_mealplan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> User:
+        pass
+    
+    @abstractmethod
+    def remove_recipe_from_mealplan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> None:
+        pass
+
+    def add_ingredient_to_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> User:
+        pass
+
+    def remove_ingredient_from_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> None:
+        pass
+
+    def del_pantry(self, user_id: int, pantry_id: int) -> None:
         pass
 
 class IngredientRepository(ABC):
@@ -110,20 +151,4 @@ class RecipeRepository(ABC):
 
     @abstractmethod
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
-        pass
-
-class MealPlanRepository(ABC):
-
-    def create_mealplan(self):
-        pass
-
-    def del_mealplan(self):
-        pass
-
-class PantryRepository(ABC):
-
-    def create_pantry(self):
-        pass
-
-    def del_pantry(self):
         pass
