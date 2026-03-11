@@ -69,6 +69,10 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
+    def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
+        pass
+
+    @abstractmethod
     def del_mealplan(self, user_id: int, meal_plan_id: int) -> None:
         pass
 

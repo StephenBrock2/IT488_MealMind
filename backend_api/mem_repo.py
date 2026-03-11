@@ -54,6 +54,9 @@ class MemUserRepository(UserRepository):
     def create_mealplan(self, meal_plan: MealPlan) -> MealPlan:
         pass
 
+    def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
+        pass
+
     def del_mealplan(self, meal_plan_id: int) -> None:
         pass
 

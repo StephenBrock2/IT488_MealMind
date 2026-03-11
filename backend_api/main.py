@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import Optional
 from dependencies import state_change, init_db_startup, get_user_repo, get_recipe_repo, get_ingredient_repo
-from repo import User, Recipe, Ingredient, UserRepository, RecipeRepository, IngredientRepository
+from repo import User, Recipe, Ingredient, MealPlan, UserRepository, RecipeRepository, IngredientRepository
 
 app = FastAPI()
 
@@ -126,8 +126,12 @@ def user_login(user_data: UserLogin, repo: UserRepository = Depends(get_user_rep
 def create_meal_plan(mealplan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     return {"Create Success"}
 
+@app.get("/api/user/mealplan/id")
+def get_meal_plan_by_id(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    return {"Get Success"}
+
 @app.get("/api/user/mealplan")
-def get_meal_plan(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+def get_user_meal_plans(user_id: int, repo: UserRepository = Depends(get_user_repo)):
     return {"Get Success"}
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
