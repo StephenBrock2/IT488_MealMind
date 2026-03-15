@@ -96,6 +96,19 @@ export default function Home() {
             >
               View All Recipes
             </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => navigate("/mealplans")}
+              sx={{
+                backgroundColor: "#E8A600",
+                "&:hover": { backgroundColor: "#d39500" },
+              }}
+>
+  Custom Meal Plan
+</Button>
+
+
           </Box>
         </Box>
 

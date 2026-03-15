@@ -23,6 +23,14 @@ vi.mock("../../components/CreateRecipeDialog", () => ({
   default: () => <div data-testid="create-recipe-dialog" />,
 }));
 
+vi.mock("../../components/HeroCarousel", () => ({
+  default: () => <div data-testid="hero-carousel" />,
+}));
+
+vi.mock("../../components/Header", () => ({
+  default: () => <div data-testid="header" />,
+}));
+
 function renderHome() {
   return render(
     <MemoryRouter>
@@ -137,8 +145,40 @@ describe("Home", () => {
 
     renderHome();
 
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/recipe_list");
+    });
+
     expect(
       screen.getByRole("button", { name: /view all recipes/i })
+    ).toBeInTheDocument();
+  });
+
+  it("renders the Custom Meal Plan button", async () => {
+    mockFetchJson([], true, 200);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/recipe_list");
+    });
+
+    expect(
+      screen.getByRole("button", { name: /custom meal plan/i })
+    ).toBeInTheDocument();
+  });
+
+  it("renders the Create Recipe button", async () => {
+    mockFetchJson([], true, 200);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/recipe_list");
+    });
+
+    expect(
+      screen.getByRole("button", { name: /create recipe/i })
     ).toBeInTheDocument();
   });
 });
