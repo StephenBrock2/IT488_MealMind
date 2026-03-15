@@ -151,8 +151,15 @@ class SQLRecipeRepository(RecipeRepository):
 
         return recipes
 
-    def get_random_recipe(self) -> Recipe:
-        pass
+    def get_random_recipe(self) -> Recipe | None:
+        cur, conn = db_connect()
+        cur.execute("SELECT * FROM recipes ORDER BY RANDOM() LIMIT 1")
+        row = cur.fetchone()
+        db_disconnect(cur, conn)
+
+        if row:
+            return Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4])
+        return None
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         cur, conn = db_connect()

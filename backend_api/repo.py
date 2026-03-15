@@ -130,7 +130,7 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def get_random_recipe(self) -> Recipe:
+    def get_random_recipe(self) -> Recipe | None:
         pass
 
     @abstractmethod

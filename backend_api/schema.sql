@@ -20,8 +20,21 @@ CREATE TABLE IF NOT EXISTS recipes (
 );
 
 CREATE TABLE IF NOT EXISTS recipe_ingredients (
-    recipe_id INTEGER REFERENCES recipes(id),
-    ingredient_id INTEGER REFERENCES ingredients(id),
+    recipe_id INTEGER REFERENCES recipes(id) ON DELETE CASCADE,
+    ingredient_id INTEGER REFERENCES ingredients(id) ON DELETE CASCADE,
     quantity VARCHAR(50) NOT NULL,
     PRIMARY KEY (recipe_id, ingredient_id)
+);
+
+CREATE TABLE IF NOT EXISTS meal_plans (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS meal_plan_recipes (
+    meal_plan_id INTEGER REFERENCES meal_plans(id) ON DELETE CASCADE NOT NULL,
+    recipe_id INTEGER REFERENCES recipes(id) ON DELETE CASCADE,
+    day_of_week VARCHAR(20) NOT NULL,
+    meal_order INTEGER NOT NULL,
+    PRIMARY KEY (meal_plan_id, day_of_week, meal_order)
 );
