@@ -81,22 +81,66 @@ class SQLUserRepository(UserRepository):
             return User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
         return None
     
-    def user_login(username: str, password: str) -> User | None:
-        pass
+    def user_login(self, username: str, password: str) -> User | None:
+        cur, conn = db_connect()
 
-    def create_mealplan(self, meal_plan: MealPlan) -> MealPlan:
-        pass
+        cur.execute(
+            "SELECT id, username, email, password_hash FROM users WHERE username = %s",
+            (username,)
+        )
+
+        row = cur.fetchone()
+        db_disconnect(cur, conn)
+
+        if not row:
+            return None
+
+        user = User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
+
+        if user.verify_password(password):
+            return user
+        return None
+
+    def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> MealPlan:
+        cur, conn = db_connect()
+
+        cur.execute(
+            "INSERT INTO meal_plans (user_id) VALUES (%s) RETURNING id",
+            (user_id,)
+        )
+
+        meal_plan.id = cur.fetchone()[0]
+        db_disconnect(cur, conn)
+        return meal_plan
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
+        cur, conn = db_connect()
+
+        cur.execute(
+            "SELECT id, user_id FROM meal_plans WHERE id = %s",
+            (meal_plan_id,)
+        )
+
+        row = cur.fetchone()
+        db_disconnect(cur, conn)
+
+        if row:
+            return MealPlan(id=row[0], plans={})
+        return None
+
+    def del_meal_plan(self, meal_plan_id: int) -> None:
+        cur, conn = db_connect()
+        cur.execute(
+            "DELETE FROM meal_plans WHERE id = %s",
+            (meal_plan_id,)
+        )
+
+        db_disconnect(cur, conn)
+
+    def add_recipe_to_meal_plan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
         pass
 
-    def del_mealplan(self, meal_plan_id: int) -> None:
-        pass
-
-    def add_recipe_to_mealplan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
-        pass
-
-    def remove_recipe_from_mealplan(self, meal_plan_id: int, recipe_id: int) -> None:
+    def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
         pass
 
 class SQLRecipeRepository(RecipeRepository):

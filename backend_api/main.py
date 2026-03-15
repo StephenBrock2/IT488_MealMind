@@ -122,15 +122,15 @@ def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_r
 def user_login(user_data: UserLogin, repo: UserRepository = Depends(get_user_repo)):
     return {"Login Success"}
 
-@app.post("/api/user/mealplan")
-def create_meal_plan(mealplan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+@app.post("/api/user/meal_plan")
+def create_meal_plan(meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     return {"Create Success"}
 
-@app.get("/api/user/mealplan/id")
+@app.get("/api/user/meal_plan/id")
 def get_meal_plan_by_id(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
     return {"Get Success"}
 
-@app.get("/api/user/mealplan")
+@app.get("/api/user/meal_plan")
 def get_user_meal_plans(user_id: int, repo: UserRepository = Depends(get_user_repo)):
     return {"Get Success"}
 

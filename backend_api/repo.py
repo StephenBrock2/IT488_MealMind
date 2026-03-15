@@ -61,11 +61,11 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def user_login(username: str, password: str) -> User | None:
+    def user_login(self, username: str, password: str) -> User | None:
         pass
 
     @abstractmethod
-    def create_mealplan(self, user_id: int, meal_plan: MealPlan) -> User:
+    def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> User:
         pass
 
     @abstractmethod
@@ -73,15 +73,15 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def del_mealplan(self, user_id: int, meal_plan_id: int) -> None:
+    def del_meal_plan(self, user_id: int, meal_plan_id: int) -> None:
         pass
 
     @abstractmethod
-    def add_recipe_to_mealplan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> User:
+    def add_recipe_to_meal_plan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> User:
         pass
     
     @abstractmethod
-    def remove_recipe_from_mealplan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> None:
+    def remove_recipe_from_meal_plan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> None:
         pass
 
     def add_ingredient_to_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> User:
