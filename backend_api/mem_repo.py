@@ -7,7 +7,7 @@ class MemUserRepository(UserRepository):
         self.next_id = 1
         self.user_tokens = []
 
-        self.mealplans = {}
+        self.meal_plans = {}
         self.next_meal_id = 1
 
         self.pantries = {}
@@ -51,19 +51,19 @@ class MemUserRepository(UserRepository):
     def user_login(username: str, password: str) -> User | None:
         pass
 
-    def create_mealplan(self, meal_plan: MealPlan) -> MealPlan:
+    def create_meal_plan(self, meal_plan: MealPlan) -> MealPlan:
         pass
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         pass
 
-    def del_mealplan(self, meal_plan_id: int) -> None:
+    def del_meal_plan(self, meal_plan_id: int) -> None:
         pass
 
-    def add_recipe_to_mealplan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
+    def add_recipe_to_meal_plan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
         pass
 
-    def remove_recipe_from_mealplan(self, meal_plan_id: int, recipe_id: int) -> None:
+    def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
         pass
 
 class MemIngredientRepository(IngredientRepository):
