@@ -40,7 +40,7 @@ class UserLogin(BaseModel):
 
 class MealPlanCreate(BaseModel):
     username: str
-    plans: dict[str, list[Optional[int]]]
+    plans: dict[str, dict[str, Optional[int]]]
 
 @app.get("/api/health")
 def health():
