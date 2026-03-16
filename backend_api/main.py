@@ -122,6 +122,15 @@ def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_r
 def user_login(user_data: UserLogin, repo: UserRepository = Depends(get_user_repo)):
     return {"Login Success"}
 
+@app.post("/api/user/test")
+def user_test():
+    user_bob = User(id=5, username="bob", email="bob@example.com", password_hash=User.hash_password("bob123"))
+    pass_bob = User.hash_password("bob123")
+    verify1 = user_bob.verify_password('bob123')
+    user_bob2 = User(id=5, username="bob", email="bob@example.com", password_hash=pass_bob)
+    verify2 = user_bob2.verify_password('bob123')
+    return [verify1, verify2]
+
 @app.post("/api/user/meal_plan")
 def create_meal_plan(meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     return {"Create Success"}
