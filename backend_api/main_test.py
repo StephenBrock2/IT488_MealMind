@@ -73,3 +73,10 @@ def test_ingredient_post_then_get():
 def test_ingredient_post_missing_name():
     response = client.post("/api/ingredient", json={})
     assert response.status_code == 422
+
+
+def test_user_test_password_verification():
+    response = client.post("/api/user/test")
+    assert response.status_code == 200
+    result = response.json()
+    assert result == [True, True]
