@@ -52,19 +52,36 @@ class MemUserRepository(UserRepository):
         pass
 
     def create_meal_plan(self, meal_plan: MealPlan) -> MealPlan:
-        pass
+        self.mealplans[meal_plan.id] = meal_plan
+        return self.meal_plans[self.meal_plan.id]
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
-        pass
+        for meal_plan in self.meal_plans.keys():
+            if meal_plan == meal_plan_id:
+                meal_plan_data = self.meal_plans[meal_plan].plans
+                return meal_plan_data
+            else:
+                return None
 
     def del_meal_plan(self, meal_plan_id: int) -> None:
-        pass
+        if meal_plan_id in self.meal_plans.keys():
+            self.meal_plans.pop(meal_plan_id)
+        return None
 
-    def add_recipe_to_meal_plan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
-        pass
+    def add_recipe_to_meal_plan(self, meal_plan_id: int, meal_slot: str, recipe_id: int) -> MealPlan:
+            self.meal_plans[meal_plan_id].plans[meal_slot] == recipe_id
+            meal_plan_data = self.meal_plans[meal_plan_id].plans
+            return meal_plan_data
 
     def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
-        pass
+        for meal_plan in self.meal_plans.keys():
+            if meal_plan == meal_plan_id:
+                for recipe in self.meal_plans[meal_plan].plans.values():
+                    if recipe == recipe_id:
+                        self.meal_plans[meal_plan].plans.pop(recipe)
+                    return self.meal_plans[meal_plan_id]
+        else:
+            return None
 
 class MemIngredientRepository(IngredientRepository):
     def __init__(self):
