@@ -51,9 +51,19 @@ class MemUserRepository(UserRepository):
     def user_login(username: str, password: str) -> User | None:
         pass
 
-    def create_meal_plan(self, meal_plan: MealPlan) -> MealPlan:
-        self.mealplans[meal_plan.id] = meal_plan
-        return self.meal_plans[self.meal_plan.id]
+    def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> MealPlan:
+        for id in self.users.values():
+            if id.id == user_id:
+                user = id
+        for i in self.meal_plans.keys():
+            if i == meal_plan.id:
+                return self.meal_plans[i]
+        else:
+            meal_plan.id = self.next_meal_id
+            self.meal_plans[meal_plan.id] = meal_plan
+            self.next_meal_id += 1
+            user.meal_plans[meal_plan.id] = meal_plan
+            return user.meal_plans[meal_plan.id]
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         for meal_plan in self.meal_plans.keys():
@@ -66,19 +76,32 @@ class MemUserRepository(UserRepository):
     def del_meal_plan(self, meal_plan_id: int) -> None:
         if meal_plan_id in self.meal_plans.keys():
             self.meal_plans.pop(meal_plan_id)
+        for user in self.users.values():
+            if meal_plan_id in user.meal_plans.keys():
+                user.meal_plans.pop(meal_plan_id)
         return None
 
     def add_recipe_to_meal_plan(self, meal_plan_id: int, meal_slot: str, recipe_id: int) -> MealPlan:
-            self.meal_plans[meal_plan_id].plans[meal_slot] == recipe_id
-            meal_plan_data = self.meal_plans[meal_plan_id].plans
+            meal_slot = meal_slot.lower()
+            if meal_plan_id in self.meal_plans.keys():
+                self.meal_plans[meal_plan_id].plans[meal_slot] = recipe_id
+                for user in self.users.values():
+                    if meal_plan_id in user.meal_plans.keys():
+                        user.meal_plans[meal_plan_id].plans[meal_slot] = recipe_id
+                meal_plan_data = self.meal_plans[meal_plan_id].plans
             return meal_plan_data
 
     def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
-        for meal_plan in self.meal_plans.keys():
-            if meal_plan == meal_plan_id:
-                for recipe in self.meal_plans[meal_plan].plans.values():
+        for id in self.meal_plans.keys():
+            if id == meal_plan_id:
+                for slot, recipe in self.meal_plans[id].plans.items():
                     if recipe == recipe_id:
-                        self.meal_plans[meal_plan].plans.pop(recipe)
+                        self.meal_plans[id].plans[slot] = None
+                for user in self.users.values():
+                    if meal_plan_id in user.meal_plans.keys():
+                        for slot, recipe in user.meal_plans[meal_plan_id].plans.items():
+                            if recipe == recipe_id:
+                                user.meal_plans[slot] = None
                     return self.meal_plans[meal_plan_id]
         else:
             return None
