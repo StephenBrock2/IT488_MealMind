@@ -30,7 +30,7 @@ class SQLUserRepository(UserRepository):
         try:
             cur.execute(
                 "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id",
-                (user.username, user.email, user.password_hash)
+                (user.username, user.email, user.password_hash.decode('utf-8'))
             )
 
             user.id = cur.fetchone()[0]
@@ -95,7 +95,7 @@ class SQLUserRepository(UserRepository):
         if not row:
             return None
 
-        user = User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
+        user = User(id=row[0], username=row[1], email=row[2], password_hash=row[3].encode())
 
         if user.verify_password(password):
             return user

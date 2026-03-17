@@ -1,15 +1,20 @@
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Query, HTTPException, Response, Request
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
 from typing import Optional
 from dependencies import state_change, init_db_startup, get_user_repo, get_recipe_repo, get_ingredient_repo
 from repo import User, Recipe, Ingredient, MealPlan, UserRepository, RecipeRepository, IngredientRepository
+import jwt
+import datetime
+from dotenv import load_dotenv
+import os
+
 
 app = FastAPI()
 
 # define test state versus live state
-state_change(app, "dev") # "dev" or "prod"
+state_change(app, "prod") # "dev" or "prod"
 
 @app.on_event("startup")
 def startup():
@@ -111,7 +116,7 @@ def get_random_recipe(repo: RecipeRepository = Depends(get_recipe_repo)):
     return_recipe = repo.get_random_recipe()
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
-@app.post("/api/user")
+@app.post("/api/user/register")
 def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_repo)):
     password_hash = User.hash_password(user_data.password)
     user = User(id=None, username=user_data.username, email=user_data.email, password_hash=password_hash)
@@ -119,14 +124,53 @@ def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_r
     return {"id": saved_user.id, "username": saved_user.username, "email": saved_user.email}
 
 @app.post("/api/user/login")
-def user_login(user_data: UserLogin, repo: UserRepository = Depends(get_user_repo)):
-    return {"Login Success"}
+def user_login(user_data: UserLogin, response: Response, repo: UserRepository = Depends(get_user_repo)):
+    user = repo.user_login(user_data.username, user_data.password)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    jwt_expiry_time_seconds = 60
+    now = datetime.datetime.now(datetime.timezone.utc)
+    jwt_data = {
+        "id": user.id,
+        "username": user.username,
+        "iat": now,
+        "exp": now + datetime.timedelta(seconds=jwt_expiry_time_seconds),
+    }
+    jwt_token = jwt.encode(jwt_data, os.getenv('JWT_KEY'), algorithm="HS256")
+    response.set_cookie(
+        key="jwt_token",
+        value=jwt_token,
+        httponly=True,
+        samesite="lax",
+        max_age=jwt_expiry_time_seconds,
+    )
+    return {
+        "id": user.id,
+        "username": user.username
+    }
+
+@app.get("/api/user/id")
+def user_id(request: Request):
+    token = request.cookies.get("jwt_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, os.getenv('JWT_KEY'), algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return {"id": payload["id"], "username": payload["username"]}
+
+
 
 @app.post("/api/user/test")
 def user_test():
     user_bob = User(id=5, username="bob", email="bob@example.com", password_hash=User.hash_password("bob123"))
-    pass_bob = User.hash_password("bob123")
     verify1 = user_bob.verify_password('bob123')
+    
+    pass_bob = User.hash_password("bob123")
     user_bob2 = User(id=5, username="bob", email="bob@example.com", password_hash=pass_bob)
     verify2 = user_bob2.verify_password('bob123')
     return [verify1, verify2]
