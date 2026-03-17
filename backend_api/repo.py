@@ -40,7 +40,7 @@ class Recipe():
 class MealPlan():
     def __init__(self, id: int, plans: dict):
         self.id = id
-        self.plans = {}
+        self.plans = plans
 
 class UserRepository(ABC):
 

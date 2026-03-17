@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, Query, HTTPException, Response, Request
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
@@ -11,15 +12,17 @@ from dotenv import load_dotenv
 import os
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if app.state.env == "prod":
+        init_db_startup()
+
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
 state_change(app, "prod") # "dev" or "prod"
-
-@app.on_event("startup")
-def startup():
-    if app.state.env == "prod":
-        init_db_startup()
 
 count = 0
 
