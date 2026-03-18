@@ -83,18 +83,6 @@ def test_user_test_password_verification():
     assert result == [True, True]
 
 
-# def test_user_register():
-#     username = f"test_bob{int(time.time())}"
-#     response = client.post("/api/user/register", json={
-#         "username": username,
-#         "email": f"{username}@example.com",
-#         "password": f"{username}pass"
-#     })
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["username"] == username
-#     assert "id" in data
-
 
 def test_user_login():
     username = f"test_login{int(time.time())}"
