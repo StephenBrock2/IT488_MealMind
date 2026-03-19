@@ -110,8 +110,22 @@ def test_user_login():
     assert data["username"] == username
     assert "id" in data
 
-    # Verify jwt_token cookie is set
-    assert "jwt_token" in response.cookies
+
+    # Call the decorator-protected endpoint with the JWT cookie
+    dec_response = client.post("/api/user/testdecorator")
+    assert dec_response.status_code == 200
+    payload = dec_response.json()
+    assert payload["username"] == username
+
+    # Logout
+    response = client.get("/api/user/logout")
+    assert response.status_code == 200
+
+
+    # Call without a JWT cookie
+    # client.cookies.clear()
+    dec_response = client.post("/api/user/testdecorator")
+    assert dec_response.status_code == 401
 
     # Login with wrong password
     response = client.post("/api/user/login", json={
@@ -119,3 +133,6 @@ def test_user_login():
         "password": "wrongpassword",
     })
     assert response.status_code == 404
+
+
+

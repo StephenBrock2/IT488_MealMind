@@ -50,6 +50,25 @@ class MealPlanCreate(BaseModel):
     username: str
     plans: dict[str, dict[str, Optional[int]]]
 
+
+def require_jwt(func):
+    import functools
+    @functools.wraps(func)
+    def wrapper(*args, request: Request, **kwargs):
+        token = request.cookies.get("jwt_token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        try:
+            payload = jwt.decode(token, os.getenv("JWT_KEY"), algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Token expired")
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        request.state.jwt_payload = payload
+        return func(*args, request=request, **kwargs)
+    return wrapper
+
+
 @app.get("/api/health")
 def health():
     return {"ok": True}
@@ -166,6 +185,12 @@ def user_id(request: Request):
         raise HTTPException(status_code=401, detail="Invalid token")
     return {"id": payload["id"], "username": payload["username"]}
 
+@app.get("/api/user/logout")
+def user_logout(response: Response):
+    response.delete_cookie(key="jwt_token", httponly=True, samesite="lax")
+    return "logged out"
+
+
 
 
 @app.post("/api/user/test")
@@ -177,6 +202,11 @@ def user_test():
     user_bob2 = User(id=5, username="bob", email="bob@example.com", password_hash=pass_bob)
     verify2 = user_bob2.verify_password('bob123')
     return [verify1, verify2]
+
+@app.post("/api/user/testdecorator")
+@require_jwt
+def user_test_decorator(request: Request):
+    return request.state.jwt_payload
 
 @app.post("/api/user/meal_plan")
 def create_meal_plan(meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
