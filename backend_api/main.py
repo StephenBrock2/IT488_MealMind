@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
-state_change(app, "prod") # "dev" or "prod"
+state_change(app, "dev") # "dev" or "prod"
 
 count = 0
 
@@ -166,8 +166,6 @@ def user_id(request: Request):
         raise HTTPException(status_code=401, detail="Invalid token")
     return {"id": payload["id"], "username": payload["username"]}
 
-
-
 @app.post("/api/user/test")
 def user_test():
     user_bob = User(id=5, username="bob", email="bob@example.com", password_hash=User.hash_password("bob123"))
@@ -178,15 +176,15 @@ def user_test():
     verify2 = user_bob2.verify_password('bob123')
     return [verify1, verify2]
 
-@app.post("/api/user/meal_plan")
+@app.post("/api/meal_plan")
 def create_meal_plan(meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     return {"Create Success"}
 
-@app.get("/api/user/meal_plan/id")
+@app.get("/api/meal_plan/id")
 def get_meal_plan_by_id(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
     return {"Get Success"}
 
-@app.get("/api/user/meal_plan")
+@app.get("/api/meal_plan")
 def get_user_meal_plans(user_id: int, repo: UserRepository = Depends(get_user_repo)):
     return {"Get Success"}
 
