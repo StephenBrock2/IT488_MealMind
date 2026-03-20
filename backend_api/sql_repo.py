@@ -127,6 +127,9 @@ class SQLUserRepository(UserRepository):
         if row:
             return MealPlan(id=row[0], plans={})
         return None
+    
+    def get_mealplans_by_user(self, user_id: int) -> MealPlan | None:
+        pass
 
     def del_meal_plan(self, meal_plan_id: int) -> None:
         cur, conn = db_connect()
@@ -137,9 +140,11 @@ class SQLUserRepository(UserRepository):
 
         db_disconnect(cur, conn)
 
+    # Might be unecessary / Temporarily removed from repo
     def add_recipe_to_meal_plan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
         pass
 
+    # Might be unecessary / Temporarily removed from repo
     def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
         pass
 

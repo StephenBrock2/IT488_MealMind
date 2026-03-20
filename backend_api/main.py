@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
-state_change(app, "prod") # "dev" or "prod"
+state_change(app, "dev") # "dev" or "prod"
 
 count = 0
 
@@ -47,7 +47,6 @@ class UserLogin(BaseModel):
     password: str
 
 class MealPlanCreate(BaseModel):
-    username: str
     plans: dict[str, dict[str, Optional[int]]]
 
 def require_jwt(func):
@@ -204,16 +203,24 @@ def user_test_decorator(request: Request):
     return request.state.jwt_payload
 
 @app.post("/api/meal_plan")
-def create_meal_plan(meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
-    return {"Create Success"}
+def create_meal_plan(#Placeholder user_id: int, 
+                     meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+    user_id = 1 # Placeholder
+    mealplan = MealPlan(id=None, plans=meal_plan_data.plans)
+    return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
+    return return_mealplan
 
 @app.get("/api/meal_plan/id")
-def get_meal_plan_by_id(user_id: int, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
-    return {"Get Success"}
+def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
+    return return_mealplan
 
 @app.get("/api/meal_plan")
-def get_user_meal_plans(user_id: int, repo: UserRepository = Depends(get_user_repo)):
-    return {"Get Success"}
+def get_user_meal_plans(#Placeholder user_id: int, 
+                        repo: UserRepository = Depends(get_user_repo)):
+    user_id = 1 # Placeholder
+    return_user_mealplans = repo.get_mealplans_by_user(user_id=user_id)
+    return return_user_mealplans
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")
