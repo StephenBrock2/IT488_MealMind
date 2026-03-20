@@ -1,5 +1,5 @@
 import unittest
-from repo import User, Recipe, Ingredient
+from repo import User, Recipe, Ingredient, MealPlan
 from mem_repo import MemUserRepository, MemRecipeRepository, MemIngredientRepository, mem_repo_startup
 
 class TestCreateObjects(unittest.TestCase):
@@ -15,6 +15,16 @@ class TestCreateObjects(unittest.TestCase):
     def test_create_user_object(self):
         user = User(id=None, username='Test', email='test@testing.com', password_hash=User.hash_password('testpassword'))
         self.assertIsInstance(user, User)
+
+    def test_create_mealplan_object(self):
+        # JSON null changed to Python None / conversion normally handled in json.loads
+        plans = {"plans": {"2026-03-08": {"breakfast": 5,"lunch": 2,"dinner": None},
+                        "2026-03-09": {"breakfast": 99,"lunch": 7,"dinner": 3},
+                        "2026-03-10": {"breakfast": 56,"lunch": 71,"dinner": 43}
+                        }
+                }
+        mealplan = MealPlan(id=None, plans=plans)
+        self.assertIsInstance(mealplan, MealPlan)
 
 class TestRecipeCreateFunciton(unittest.TestCase):
 

@@ -58,12 +58,11 @@ class MemUserRepository(UserRepository):
         for i in self.meal_plans.keys():
             if i == meal_plan.id:
                 return self.meal_plans[i]
-        else:
-            meal_plan.id = self.next_meal_id
-            self.meal_plans[meal_plan.id] = meal_plan
-            self.next_meal_id += 1
-            user.meal_plans[meal_plan.id] = meal_plan
-            return user.meal_plans[meal_plan.id]
+        meal_plan.id = self.next_meal_id
+        self.meal_plans[meal_plan.id] = meal_plan
+        self.next_meal_id += 1
+        user.meal_plans[meal_plan.id] = meal_plan
+        return user.meal_plans[meal_plan.id]
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         for meal_plan in self.meal_plans.keys():
