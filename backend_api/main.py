@@ -120,10 +120,17 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
+@app.post("/api/recipe2")
+def create_recipe_2(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
+    saved_recipe = repo.create_recipe_2(recipe, recipe_data.ingredients, ing_repo) 
+    saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
+    return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
+
 @app.post("/api/recipe/{id}")
 def update_recipe(recipe_id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
     recipe = repo.get_recipe_by_id(recipe_id)
-    return_recipe = repo.update_recipe(recipe.id, recipe_data.title, recipe_data.cook_time, recipe_data.instructions, recipe_data.ingredients, ing_repo)
+    return_recipe = repo.update_recipe(recipe.id, recipe_data, ing_repo)
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.delete("/api/recipe/{id}")

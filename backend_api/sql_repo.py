@@ -164,7 +164,10 @@ class SQLRecipeRepository(RecipeRepository):
         db_disconnect(cur, conn)
         return recipe
     
-    def update_recipe(self, recipe_id: int) -> None:
+    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
+        pass
+
+    def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> Recipe:
         pass
 
     def del_recipe(self, recipe_id: int) -> None:

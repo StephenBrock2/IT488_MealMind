@@ -69,7 +69,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def update_meal_plan(self, meal_plan_id: int) -> MealPlan | None:
+    def update_meal_plan(self, meal_plan_id: int) -> MealPlan:
         pass
 
     @abstractmethod
@@ -126,7 +126,11 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def update_recipe(self, recipe_id: int) -> None:
+    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
+        pass
+
+    @abstractmethod
+    def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> Recipe:
         pass
 
     @abstractmethod

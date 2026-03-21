@@ -164,13 +164,24 @@ class MemRecipeRepository(RecipeRepository):
         self.next_id += 1
         return recipe
     
-    def update_recipe(self, recipe_id: int, title: str, cook_time: int, instructions: str, ingredients: list, ing_repo: IngredientRepository) -> None:
-        recipe = self.recipes[recipe_id]
-        recipe.title = title
-        recipe.cook_time = cook_time
-        recipe.instructions = instructions
-        recipe.ingredients = []
+    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
+        recipe.id = self.next_id
+        self.recipes[self.next_id] = recipe
+        self.next_id += 1
         for i in ingredients:
+            ingredient = Ingredient(id=None, name= i.name)
+            saved_ingredient = ing_repo.create_ingredient(ingredient)
+            saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
+            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+        return recipe
+    
+    def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> None:
+        recipe = self.recipes[recipe_id]
+        recipe.title = recipe_data.title
+        recipe.cook_time = recipe_data.cook_time
+        recipe.instructions = recipe_data.instructions
+        recipe.ingredients = []
+        for i in recipe_data.ingredients:
             ingredient = Ingredient(id=None, name= i.name)
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
