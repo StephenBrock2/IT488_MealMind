@@ -234,9 +234,10 @@ def create_meal_plan(#Placeholder user_id: int,
     return return_mealplan
 
 @app.post("/api/meal_plan/{id}")
-def update_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
-    meal_plan = repo.get_meal_plan_by_id(meal_plan_id)
-    return_mealplan = repo.update_meal_plan(meal_plan=meal_plan)
+def update_meal_plan(#Placeholder user_id: int
+                    meal_plan_id: int, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+    user_id = 1
+    return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=meal_plan_id, meal_plan_data=meal_plan_data)
     return return_mealplan
 
 @app.delete("/api/meal_plan/{id}")

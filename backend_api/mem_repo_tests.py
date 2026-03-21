@@ -61,7 +61,6 @@ class TestCreateMealPlanFucntion(unittest.TestCase):
 
 class TestUpdateMealPlanFucntion(unittest.TestCase):
 
-    @unittest.skip('Work in progress')
     def test_update_meal_plan(self):
         ing_repo, repo, user_repo = mem_repo_startup() 
         plans = {"plans": {"2026-03-08": {"breakfast": 5,"lunch": 2,"dinner": None},
@@ -72,8 +71,32 @@ class TestUpdateMealPlanFucntion(unittest.TestCase):
         new_plans = {}
         mealplan = MealPlan(id=None, plans=plans)
         user_repo.create_meal_plan(user_id=1, meal_plan=mealplan)
-        user_repo.update_meal_plan(user_id=1, meal_plan=mealplan)
-        pass
+        user_repo.update_meal_plan(user_id=1, meal_plan_id=mealplan.id, meal_plan_data=new_plans)
+        self.assertEqual(mealplan.plans, new_plans)
+
+    def test_update_meal_plan_no_user(self):
+        ing_repo, repo, user_repo = mem_repo_startup() 
+        plans = {"plans": {"2026-03-08": {"breakfast": 5,"lunch": 2,"dinner": None},
+                        "2026-03-09": {"breakfast": 99,"lunch": 7,"dinner": 3},
+                        "2026-03-10": {"breakfast": 56,"lunch": 71,"dinner": 43}
+                        }
+                }
+        new_plans = {}
+        mealplan = MealPlan(id=None, plans=plans)
+        user_repo.create_meal_plan(user_id=1, meal_plan=mealplan)
+        self.assertIsNone(user_repo.update_meal_plan(user_id=None, meal_plan_id=mealplan.id, meal_plan_data=new_plans))
+
+    def test_update_meal_plan_no_plan(self):
+        ing_repo, repo, user_repo = mem_repo_startup() 
+        plans = {"plans": {"2026-03-08": {"breakfast": 5,"lunch": 2,"dinner": None},
+                        "2026-03-09": {"breakfast": 99,"lunch": 7,"dinner": 3},
+                        "2026-03-10": {"breakfast": 56,"lunch": 71,"dinner": 43}
+                        }
+                }
+        new_plans = {}
+        mealplan = MealPlan(id=None, plans=plans)
+        user_repo.create_meal_plan(user_id=1, meal_plan=mealplan)
+        self.assertIsNone(user_repo.update_meal_plan(user_id=1, meal_plan_id=None, meal_plan_data=new_plans))
 
 class TestGetMealPlanByIDFunction(unittest.TestCase):
 

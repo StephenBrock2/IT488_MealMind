@@ -67,8 +67,21 @@ class MemUserRepository(UserRepository):
         user.meal_plans[meal_plan.id] = meal_plan
         return user.meal_plans[meal_plan.id]
     
-    def update_meal_plan(self, meal_plan_id: int) -> MealPlan | None:
-        pass
+    def update_meal_plan(self, user_id: int, meal_plan_id: int, meal_plan_data: object) -> MealPlan | None:
+        user = None
+        for i in self.users.keys():
+            if i == user_id:
+                user = self.users[i]
+        if user == None:
+            return None
+        if meal_plan_id in self.meal_plans.keys():
+            meal_plan = self.meal_plans[meal_plan_id] 
+            meal_plan.plans = meal_plan_data
+            meal_plan = user.meal_plans[meal_plan_id]
+            meal_plan.plans = meal_plan_data
+            return meal_plan
+        else:
+            return None
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         for meal_plan in self.meal_plans.keys():
