@@ -108,6 +108,11 @@ def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_
     return_recipe = repo.get_recipe_by_title(recipe)
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
+@app.get("/api/recipe/{id}")
+def get_recipe_by_id(recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo)):
+    return_recipe = repo.get_recipe_by_id(recipe_id)
+    return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
+
 @app.post("/api/recipe")
 def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
