@@ -120,6 +120,17 @@ def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(ge
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
+@app.post("/api/recipe/{id}")
+def update_recipe(recipe_id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = repo.get_recipe_by_id(recipe_id)
+    return_recipe = repo.update_recipe(recipe.id, recipe_data.title, recipe_data.cook_time, recipe_data.instructions, recipe_data.ingredients, ing_repo)
+    return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
+
+@app.delete("/api/recipe/{id}")
+def delete_recipe(recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = repo.del_recipe(recipe_id)
+    return recipe
+
 @app.get("/api/recipe_list")
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
@@ -210,7 +221,18 @@ def create_meal_plan(#Placeholder user_id: int,
     return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
     return return_mealplan
 
-@app.get("/api/meal_plan/id")
+@app.post("/api/meal_plan/{id}")
+def update_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    meal_plan = repo.get_meal_plan_by_id(meal_plan_id)
+    return_mealplan = repo.update_meal_plan(meal_plan=meal_plan)
+    return return_mealplan
+
+@app.delete("/api/meal_plan/{id}")
+def delete_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    meal_plan = repo.del_meal_plan(meal_plan_id)
+    return meal_plan
+
+@app.get("/api/meal_plan/{id}")
 def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
     return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
     return return_mealplan

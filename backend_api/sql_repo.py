@@ -112,6 +112,9 @@ class SQLUserRepository(UserRepository):
         meal_plan.id = cur.fetchone()[0]
         db_disconnect(cur, conn)
         return meal_plan
+    
+    def update_meal_plan(self, meal_plan_id: int) -> MealPlan | None:
+        pass
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         cur, conn = db_connect()
@@ -160,6 +163,9 @@ class SQLRecipeRepository(RecipeRepository):
         recipe.id = cur.fetchone()[0]
         db_disconnect(cur, conn)
         return recipe
+    
+    def update_recipe(self, recipe_id: int) -> None:
+        pass
 
     def del_recipe(self, recipe_id: int) -> None:
         cur, conn = db_connect()

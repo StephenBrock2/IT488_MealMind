@@ -63,6 +63,9 @@ class MemUserRepository(UserRepository):
         self.next_meal_id += 1
         user.meal_plans[meal_plan.id] = meal_plan
         return user.meal_plans[meal_plan.id]
+    
+    def update_meal_plan(self, meal_plan_id: int) -> MealPlan | None:
+        pass
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         for meal_plan in self.meal_plans.keys():
@@ -160,7 +163,20 @@ class MemRecipeRepository(RecipeRepository):
         self.recipes[self.next_id] = recipe
         self.next_id += 1
         return recipe
-
+    
+    def update_recipe(self, recipe_id: int, title: str, cook_time: int, instructions: str, ingredients: list, ing_repo: IngredientRepository) -> None:
+        recipe = self.recipes[recipe_id]
+        recipe.title = title
+        recipe.cook_time = cook_time
+        recipe.instructions = instructions
+        recipe.ingredients = []
+        for i in ingredients:
+            ingredient = Ingredient(id=None, name= i.name)
+            saved_ingredient = ing_repo.create_ingredient(ingredient)
+            saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
+            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+        return recipe
+        
     def del_recipe(self, recipe_id: int) -> None:
         for id in self.recipes.keys():
             if recipe_id == id:
