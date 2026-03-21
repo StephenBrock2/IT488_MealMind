@@ -55,6 +55,9 @@ class MemUserRepository(UserRepository):
         for id in self.users.values():
             if id.id == user_id:
                 user = id
+                break
+            else:
+                return None
         for i in self.meal_plans.keys():
             if i == meal_plan.id:
                 return self.meal_plans[i]
@@ -169,23 +172,23 @@ class MemRecipeRepository(RecipeRepository):
         self.recipes[self.next_id] = recipe
         self.next_id += 1
         for i in ingredients:
-            ingredient = Ingredient(id=None, name= i.name)
+            ingredient = Ingredient(id=None, name= i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+            self.add_ingredient(recipe, saved_ingredient, value= i["quantity"], measurement= i["unit"])
         return recipe
     
-    def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> None:
+    def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> Recipe:
         recipe = self.recipes[recipe_id]
         recipe.title = recipe_data.title
         recipe.cook_time = recipe_data.cook_time
         recipe.instructions = recipe_data.instructions
         recipe.ingredients = []
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id=None, name= i.name)
+            ingredient = Ingredient(id=None, name= i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+            self.add_ingredient(recipe, saved_ingredient, value= i["quantity"], measurement= i["unit"])
         return recipe
         
     def del_recipe(self, recipe_id: int) -> None:
@@ -260,6 +263,10 @@ class MemRecipeRepository(RecipeRepository):
     def add_ingredient_by_id(self, recipe_id: int, ingredient_id: int, value: int, measurement: str, repo: MemIngredientRepository) -> Recipe:
         recipe = self.get_recipe_by_id(recipe_id)
         ingredient = repo.get_ingredient_by_id(ingredient_id)
+        if recipe == None:
+            return None
+        elif ingredient == None:
+            return None
         for n, i in enumerate(recipe.ingredients):
             if i["id"] == ingredient.id:
                 recipe.ingredients[n] = {
@@ -280,6 +287,8 @@ class MemRecipeRepository(RecipeRepository):
 
     def remove_ingredient_by_id(self, recipe_id: int, ingredient_id: int) -> None:
         recipe = self.get_recipe_by_id(recipe_id)
+        if recipe == None:
+            return None
         for n, i in enumerate(recipe.ingredients):
             if i["id"] == ingredient_id:
                 recipe.ingredients.pop(n)
