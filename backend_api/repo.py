@@ -65,11 +65,11 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> User:
+    def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> MealPlan:
         pass
 
     @abstractmethod
-    def update_meal_plan(self, meal_plan_id: int) -> MealPlan:
+    def update_meal_plan(self, user_id: int, meal_plan_id: int, meal_plan_data: dict) -> MealPlan | None:
         pass
 
     @abstractmethod
@@ -77,7 +77,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def get_mealplans_by_user(self, user_id: int) -> MealPlan | None:
+    def get_meal_plans_by_user(self, user_id: int) -> list[MealPlan]:
         pass
 
     @abstractmethod

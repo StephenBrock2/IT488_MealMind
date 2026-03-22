@@ -112,9 +112,35 @@ class SQLUserRepository(UserRepository):
         meal_plan.id = cur.fetchone()[0]
         db_disconnect(cur, conn)
         return meal_plan
-    
-    def update_meal_plan(self, meal_plan_id: int) -> MealPlan | None:
-        pass
+
+    def update_meal_plan(self, user_id: int, meal_plan_id: int, meal_plan_data: dict) -> MealPlan | None:
+        cur, conn = db_connect()
+
+        cur.execute(
+            "SELECT id FROM meal_plans WHERE id = %s AND user_id = %s",
+            (meal_plan_id, user_id)
+        )
+
+        if not cur.fetchone():
+            db_disconnect(cur, conn)
+            return None
+
+        cur.execute(
+            "DELETE FROM meal_plan_recipes WHERE meal_plan_id = %s",
+            (meal_plan_id,)
+        )
+
+        for day, recipe_ids in meal_plan_data.items():
+            for order, recipe_id in enumerate(recipe_ids):
+                if recipe_id:
+                    cur.execute(
+                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, day_of_week, meal_order) VALUES (%s, %s, %s, %s)",
+                        (meal_plan_id, recipe_id, day, order)
+                    )
+
+        db_disconnect(cur, conn)
+
+        return self.get_meal_plan_by_id(meal_plan_id)
 
     def get_meal_plan_by_id(self, meal_plan_id: int) -> MealPlan | None:
         cur, conn = db_connect()
@@ -131,14 +157,30 @@ class SQLUserRepository(UserRepository):
             return MealPlan(id=row[0], plans={})
         return None
     
-    def get_mealplans_by_user(self, user_id: int) -> MealPlan | None:
-        pass
-
-    def del_meal_plan(self, meal_plan_id: int) -> None:
+    def get_meal_plans_by_user(self, user_id: int) -> list[MealPlan]:
         cur, conn = db_connect()
+
         cur.execute(
-            "DELETE FROM meal_plans WHERE id = %s",
-            (meal_plan_id,)
+            "SELECT id, user_id FROM meal_plans WHERE user_id = %s",
+            (user_id,)
+        )
+
+        rows = cur.fetchall()
+        db_disconnect(cur, conn)
+
+        meal_plans = []
+        for row in rows:
+            meal_plan = MealPlan(id=row[0], plans={})
+            meal_plans.append(meal_plan)
+
+        return meal_plans
+
+    def del_meal_plan(self, user_id: int, meal_plan_id: int) -> None:
+        cur, conn = db_connect()
+
+        cur.execute(
+            "DELETE FROM meal_plans WHERE id = %s AND user_id = %s",
+            (meal_plan_id, user_id)
         )
 
         db_disconnect(cur, conn)
@@ -163,12 +205,48 @@ class SQLRecipeRepository(RecipeRepository):
         recipe.id = cur.fetchone()[0]
         db_disconnect(cur, conn)
         return recipe
-    
+
     def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
-        pass
+        cur, conn = db_connect()
+
+        cur.execute(
+            "INSERT INTO recipes (title, instructions, user_id, cook_time) VALUES (%s, %s, %s, %s) RETURNING id",
+            (recipe.title, recipe.instructions, recipe.user_id, recipe.cook_time)
+        )
+        recipe.id = cur.fetchone()[0]
+        db_disconnect(cur, conn)
+
+        for i in ingredients:
+            ingredient = Ingredient(id=None, name=i["name"])
+            saved_ingredient = ing_repo.create_ingredient(ingredient)
+
+            self.add_ingredient(recipe, saved_ingredient, value=i["quantity"], measurement=i["unit"])
+
+        return recipe
 
     def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> Recipe:
-        pass
+        cur, conn = db_connect()
+
+        cur.execute(
+            "UPDATE recipes SET title = %s, instructions = %s, cook_time = %s WHERE id = %s",
+            (recipe_data.title, recipe_data.instructions, recipe_data.cook_time, recipe_id)
+        )
+        db_disconnect(cur, conn)
+
+        cur, conn = db_connect()
+        cur.execute(
+            "DELETE FROM recipe_ingredients WHERE recipe_id = %s",
+            (recipe_id,)
+        )
+        db_disconnect(cur, conn)
+
+        recipe = self.get_recipe_by_id(recipe_id)
+        for i in recipe_data.ingredients:
+            ingredient = Ingredient(id=None, name=i["name"])
+            saved_ingredient = ing_repo.create_ingredient(ingredient)
+            self.add_ingredient(recipe, saved_ingredient, value=i["quantity"], measurement=i["unit"])
+
+        return recipe
 
     def del_recipe(self, recipe_id: int) -> None:
         cur, conn = db_connect()
