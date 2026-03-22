@@ -109,6 +109,7 @@ def test_user_login():
     data = response.json()
     assert data["username"] == username
     assert "id" in data
+    assert "jwt_token" in client.cookies
 
 
     # Call the decorator-protected endpoint with the JWT cookie
@@ -120,6 +121,7 @@ def test_user_login():
     # Logout
     response = client.get("/api/user/logout")
     assert response.status_code == 200
+    assert "jwt_token" not in client.cookies
 
 
     # Call without a JWT cookie

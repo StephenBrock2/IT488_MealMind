@@ -171,7 +171,8 @@ def user_login(user_data: UserLogin, response: Response, repo: UserRepository = 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    jwt_expiry_time_seconds = 60
+# login time
+    jwt_expiry_time_seconds = 60*60*24
     now = datetime.datetime.now(datetime.timezone.utc)
     jwt_data = {
         "id": user.id,
@@ -193,20 +194,23 @@ def user_login(user_data: UserLogin, response: Response, repo: UserRepository = 
     }
 
 @app.get("/api/user/id")
+@require_jwt
 def user_id(request: Request):
-    token = request.cookies.get("jwt_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        payload = jwt.decode(token, os.getenv('JWT_KEY'), algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    payload = request.state.jwt_payload
+    # token = request.cookies.get("jwt_token")
+    # if not token:
+    #     raise HTTPException(status_code=401, detail="Not authenticated")
+    # try:
+    #     payload = jwt.decode(token, os.getenv('JWT_KEY'), algorithms=["HS256"])
+    # except jwt.ExpiredSignatureError:
+    #     raise HTTPException(status_code=401, detail="Token expired")
+    # except jwt.InvalidTokenError:
+    #     raise HTTPException(status_code=401, detail="Invalid token")
     return {"id": payload["id"], "username": payload["username"]}
 
 @app.get("/api/user/logout")
-def user_logout(response: Response):
+@require_jwt
+def user_logout(request: Request, response: Response):
     response.delete_cookie(key="jwt_token", httponly=True, samesite="lax")
     return "logged out"
 
@@ -225,9 +229,19 @@ def user_test():
 def user_test_decorator(request: Request):
     return request.state.jwt_payload
 
+
+@app.get("/api/meal_plan")
+def get_user_meal_plans(#Placeholder user_id: int, 
+                        repo: UserRepository = Depends(get_user_repo)):
+    user_id = 1 # Placeholder
+    return_user_mealplans = repo.get_mealplans_by_user(user_id=user_id)
+    return return_user_mealplans
+
+
 @app.post("/api/meal_plan")
+@require_jwt
 def create_meal_plan(#Placeholder user_id: int, 
-                     meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+                     request: Request, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     user_id = 1 # Placeholder
     mealplan = MealPlan(id=None, plans=meal_plan_data.plans)
     return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
@@ -250,12 +264,6 @@ def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_us
     return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
     return return_mealplan
 
-@app.get("/api/meal_plan")
-def get_user_meal_plans(#Placeholder user_id: int, 
-                        repo: UserRepository = Depends(get_user_repo)):
-    user_id = 1 # Placeholder
-    return_user_mealplans = repo.get_mealplans_by_user(user_id=user_id)
-    return return_user_mealplans
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
 app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")
