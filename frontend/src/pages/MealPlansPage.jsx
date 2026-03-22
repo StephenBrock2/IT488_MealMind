@@ -325,7 +325,7 @@ export default function MealPlansPage() {
     try {
       const payload = buildMealPlanPayload();
 
-      const res = await fetch("/api/mealplan", {
+      const res = await fetch("/api/meal_plan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

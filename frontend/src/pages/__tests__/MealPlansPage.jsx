@@ -208,7 +208,7 @@ describe("MealPlansPage", () => {
     });
 
     const saveCall = global.fetch.mock.calls[1];
-    expect(saveCall[0]).toBe("/api/mealplan");
+    expect(saveCall[0]).toBe("/api/meal_plan");
     expect(saveCall[1].method).toBe("POST");
     expect(saveCall[1].headers).toEqual({
       "Content-Type": "application/json",
