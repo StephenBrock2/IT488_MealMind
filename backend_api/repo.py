@@ -29,12 +29,13 @@ class Ingredient():
         self.name = name
 
 class Recipe():
-    def __init__(self, id: int, title: str, instructions: str, cook_time: int, user_id: int = None):
+    def __init__(self, id: int, title: str, instructions: str, cook_time: int, user_id: int = None, username: str = None):
         self.id = id
         self.title = title
         self.cook_time = cook_time
         self.instructions = instructions
         self.user_id = user_id
+        self.username = username
         self.ingredients = []
 
 class MealPlan():

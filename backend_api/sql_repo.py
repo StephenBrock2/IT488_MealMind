@@ -184,14 +184,16 @@ class SQLRecipeRepository(RecipeRepository):
         cur, conn = db_connect()
 
         cur.execute(
-            "SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id"
+            "SELECT recipes.id, recipes.title, recipes.instructions, recipes.user_id, recipes.cook_time, users.username " \
+            "FROM recipes LEFT JOIN users ON recipes.user_id = users.id " \
+            "ORDER BY recipes.id"
         )
         rows = cur.fetchall()
         db_disconnect(cur, conn)
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4], user_id=row[3], username=row[5])
             recipes.append(recipe)
 
         return recipes

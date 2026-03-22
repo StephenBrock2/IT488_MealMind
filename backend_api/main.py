@@ -11,6 +11,7 @@ import datetime
 from dotenv import load_dotenv
 import os
 
+load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,7 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
-state_change(app, "dev") # "dev" or "prod"
+state_change(app, "prod") # "dev" or "prod"
 
 count = 0
 
@@ -114,8 +115,9 @@ def get_recipe_by_id(recipe_id: int, repo: RecipeRepository = Depends(get_recipe
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.post("/api/recipe")
-def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
-    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
+@require_jwt
+def create_recipe(request:Request, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time, user_id = request.state.jwt_payload['id'])
     saved_recipe = repo.create_recipe(recipe) 
     for i in recipe_data.ingredients:
         ingredient = Ingredient(id=None, name= i.name)
@@ -230,16 +232,18 @@ def user_test_decorator(request: Request):
     return request.state.jwt_payload
 
 
+
 @app.get("/api/meal_plan")
+# @require_jwt
 def get_user_meal_plans(#Placeholder user_id: int, 
-                        repo: UserRepository = Depends(get_user_repo)):
+                        request: Request, repo: UserRepository = Depends(get_user_repo)):
+    # user_id = request.state.jwt_payload['id']
     user_id = 1 # Placeholder
     return_user_mealplans = repo.get_mealplans_by_user(user_id=user_id)
     return return_user_mealplans
 
 
 @app.post("/api/meal_plan")
-@require_jwt
 def create_meal_plan(#Placeholder user_id: int, 
                      request: Request, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     user_id = 1 # Placeholder
