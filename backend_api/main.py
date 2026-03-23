@@ -135,13 +135,20 @@ def create_recipe_2(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
 @app.post("/api/recipe/{id}")
-def update_recipe(recipe_id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+@require_jwt
+def update_recipe(request: Request,recipe_id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
     recipe = repo.get_recipe_by_id(recipe_id)
+    if recipe.user_id != request.state.jwt_payload['id']:
+        raise HTTPException(status_code=403, detail="User is not the author of this recipe")
     return_recipe = repo.update_recipe(recipe.id, recipe_data, ing_repo)
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.delete("/api/recipe/{id}")
-def delete_recipe(recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+@require_jwt
+def delete_recipe(request:Request, recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = repo.get_recipe_by_id(recipe_id)
+    if recipe.user_id != request.state.jwt_payload['id']:
+        raise HTTPException(status_code=403, detail="User is not the author of this recipe")
     recipe = repo.del_recipe(recipe_id)
     return recipe
 

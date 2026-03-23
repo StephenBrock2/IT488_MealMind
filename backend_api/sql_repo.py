@@ -239,9 +239,9 @@ class SQLRecipeRepository(RecipeRepository):
         db_disconnect(cur, conn)
 
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id = None, name = i["name"])
+            ingredient = Ingredient(id = None, name = i.name)
             saved_ingredient = ing_repo.create_ingredient(ingredient)
-            self.add_ingredient_by_id(recipe_id, saved_ingredient.id, value = i["quantity"], measurement = i["unit"])
+            self.add_ingredient_by_id(recipe_id, saved_ingredient.id, value = i.quantity, measurement = i.unit)
 
         return self.get_recipe_by_id(recipe_id)
 
