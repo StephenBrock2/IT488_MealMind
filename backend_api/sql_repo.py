@@ -63,7 +63,7 @@ class SQLUserRepository(UserRepository):
         db_disconnect(cur, conn)
 
         if row:
-            return User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
+            return User(id = row[0], username = row[1], email = row[2], password_hash = row[3])
         return None
 
     def get_user_by_username(self, username: str) -> User | None:
@@ -78,7 +78,7 @@ class SQLUserRepository(UserRepository):
         db_disconnect(cur, conn)
 
         if row:
-            return User(id=row[0], username=row[1], email=row[2], password_hash=row[3])
+            return User(id = row[0], username = row[1], email = row[2], password_hash = row[3])
         return None
     
     def user_login(self, username: str, password: str) -> User | None:
@@ -95,7 +95,7 @@ class SQLUserRepository(UserRepository):
         if not row:
             return None
 
-        user = User(id=row[0], username=row[1], email=row[2], password_hash=row[3].encode())
+        user = User(id = row[0], username = row[1], email = row[2], password_hash = row[3].encode())
 
         if user.verify_password(password):
             return user
@@ -154,7 +154,7 @@ class SQLUserRepository(UserRepository):
         db_disconnect(cur, conn)
 
         if row:
-            return MealPlan(id=row[0], plans={})
+            return MealPlan(id = row[0], plans = {})
         return None
     
     def get_meal_plans_by_user(self, user_id: int) -> list[MealPlan]:
@@ -170,7 +170,7 @@ class SQLUserRepository(UserRepository):
 
         meal_plans = []
         for row in rows:
-            meal_plan = MealPlan(id=row[0], plans={})
+            meal_plan = MealPlan(id = row[0], plans = {})
             meal_plans.append(meal_plan)
 
         return meal_plans
@@ -217,10 +217,10 @@ class SQLRecipeRepository(RecipeRepository):
         db_disconnect(cur, conn)
 
         for i in ingredients:
-            ingredient = Ingredient(id=None, name=i["name"])
+            ingredient = Ingredient(id = None, name = i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
 
-            self.add_ingredient(recipe, saved_ingredient, value=i["quantity"], measurement=i["unit"])
+            self.add_ingredient(recipe, saved_ingredient, value = i["quantity"], measurement = i["unit"])
 
         return recipe
 
@@ -238,13 +238,12 @@ class SQLRecipeRepository(RecipeRepository):
         )
         db_disconnect(cur, conn)
 
-        recipe = self.get_recipe_by_id(recipe_id)
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id=None, name=i["name"])
+            ingredient = Ingredient(id = None, name = i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
-            self.add_ingredient(recipe, saved_ingredient, value=i["quantity"], measurement=i["unit"])
+            self.add_ingredient_by_id(recipe_id, saved_ingredient.id, value = i["quantity"], measurement = i["unit"])
 
-        return recipe
+        return self.get_recipe_by_id(recipe_id)
 
     def del_recipe(self, recipe_id: int) -> None:
         cur, conn = db_connect()
@@ -266,7 +265,7 @@ class SQLRecipeRepository(RecipeRepository):
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4], user_id=row[3])
+            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
             self._populate_recipe_ingredients(recipe, cur)
             recipes.append(recipe)
 
@@ -281,7 +280,7 @@ class SQLRecipeRepository(RecipeRepository):
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4])
+            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], user_id = row[3], cook_time = row[4])
             self._populate_recipe_ingredients(recipe, cur)
             recipes.append(recipe)
 
@@ -295,7 +294,7 @@ class SQLRecipeRepository(RecipeRepository):
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4])
+            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], user_id = row[3], cook_time = row[4])
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -314,7 +313,7 @@ class SQLRecipeRepository(RecipeRepository):
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4], user_id=row[3])
+            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -333,7 +332,7 @@ class SQLRecipeRepository(RecipeRepository):
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], cook_time=row[4], user_id=row[3])
+            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -406,7 +405,7 @@ class SQLIngredientRepository(IngredientRepository):
 
         if row:
             db_disconnect(cur, conn)
-            return Ingredient(id=row[0], name=row[1])
+            return Ingredient(id = row[0], name = row[1])
 
         cur.execute(
             "INSERT INTO ingredients (name) VALUES (%s) RETURNING id",
@@ -438,7 +437,7 @@ class SQLIngredientRepository(IngredientRepository):
         row = cur.fetchone()
         db_disconnect(cur, conn)
         if row:
-            return Ingredient(id=row[0], name=row[1])
+            return Ingredient(id = row[0], name = row[1])
         return None
 
     def list_ingredients(self) -> list[Ingredient]:
@@ -453,7 +452,7 @@ class SQLIngredientRepository(IngredientRepository):
 
         ingredients = []
         for row in rows:
-            ingredient = Ingredient(id=row[0], name=row[1])
+            ingredient = Ingredient(id = row[0], name = row[1])
             ingredients.append(ingredient)
 
         return ingredients
