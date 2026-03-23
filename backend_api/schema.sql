@@ -37,3 +37,10 @@ CREATE TABLE IF NOT EXISTS meal_plan_recipes (
     meal_order INTEGER NOT NULL,
     PRIMARY KEY (meal_plan_id, day_of_week, meal_order)
 );
+
+CREATE TABLE IF NOT EXISTS pantry (
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    ingredient_id INTEGER REFERENCES ingredients(id) ON DELETE CASCADE,
+    quantity VARCHAR(50),
+    PRIMARY KEY (user_id, ingredient_id)
+);
