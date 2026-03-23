@@ -159,7 +159,7 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
-    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient) -> None:
+    def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         pass
 
     @abstractmethod
