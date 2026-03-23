@@ -91,7 +91,7 @@ class MemUserRepository(UserRepository):
         else:
             return None
             
-    def get_mealplans_by_user(self, user_id: int) -> MealPlan | None:
+    def get_meal_plans_by_user(self, user_id: int) -> MealPlan | None:
         meal_plan_data = {}
         for user in self.users.keys():
             if user == user_id:
