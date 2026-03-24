@@ -159,6 +159,13 @@ def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
     return recipe_list
 
+@app.get("/api/recipe_list/user")
+@require_jwt
+def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
+    recipe_list = repo.list_recipes()
+    return recipe_list
+
+
 @app.get("/api/recipe_reel")
 def list_six_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     six_list = repo.list_six_recipes()
@@ -207,7 +214,7 @@ def user_login(user_data: UserLogin, response: Response, repo: UserRepository = 
 @app.get("/api/user/id")
 @require_jwt
 def user_id(request: Request):
-    payload = request.state.jwt_payload
+    payload = request.state.jwt_payload 
     # token = request.cookies.get("jwt_token")
     # if not token:
     #     raise HTTPException(status_code=401, detail="Not authenticated")
