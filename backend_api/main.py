@@ -110,8 +110,10 @@ def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.get("/api/recipe/{id}")
-def get_recipe_by_id(recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo)):
-    return_recipe = repo.get_recipe_by_id(recipe_id)
+def get_recipe_by_id(id: int, repo: RecipeRepository = Depends(get_recipe_repo)):
+    return_recipe = repo.get_recipe_by_id(id)
+    if not return_recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
 
 @app.post("/api/recipe")
@@ -134,10 +136,10 @@ def create_recipe_2(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
-@app.post("/api/recipe/{id}")
+@app.put("/api/recipe/{id}")
 @require_jwt
-def update_recipe(request: Request,recipe_id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
-    recipe = repo.get_recipe_by_id(recipe_id)
+def update_recipe(request: Request,id: int, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = repo.get_recipe_by_id(id)
     if recipe.user_id != request.state.jwt_payload['id']:
         raise HTTPException(status_code=403, detail="User is not the author of this recipe")
     return_recipe = repo.update_recipe(recipe.id, recipe_data, ing_repo)
@@ -145,11 +147,11 @@ def update_recipe(request: Request,recipe_id: int, recipe_data: RecipeCreate, re
 
 @app.delete("/api/recipe/{id}")
 @require_jwt
-def delete_recipe(request:Request, recipe_id: int, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
-    recipe = repo.get_recipe_by_id(recipe_id)
+def delete_recipe(request:Request, id: int, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = repo.get_recipe_by_id(id)
     if recipe.user_id != request.state.jwt_payload['id']:
         raise HTTPException(status_code=403, detail="User is not the author of this recipe")
-    recipe = repo.del_recipe(recipe_id)
+    recipe = repo.del_recipe(id)
     return recipe
 
 @app.get("/api/recipe_list")
@@ -260,19 +262,19 @@ def create_meal_plan(#Placeholder user_id: int,
 
 @app.post("/api/meal_plan/{id}")
 def update_meal_plan(#Placeholder user_id: int
-                    meal_plan_id: int, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+                    id: int, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     user_id = 1
-    return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=meal_plan_id, meal_plan_data=meal_plan_data)
+    return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=id, meal_plan_data=meal_plan_data)
     return return_mealplan
 
 @app.delete("/api/meal_plan/{id}")
-def delete_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
-    meal_plan = repo.del_meal_plan(meal_plan_id)
+def delete_meal_plan(id: int, repo: UserRepository = Depends(get_user_repo)):
+    meal_plan = repo.del_meal_plan(id)
     return meal_plan
 
 @app.get("/api/meal_plan/{id}")
-def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
-    return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
+def get_meal_plan_by_id(id: int, repo: UserRepository = Depends(get_user_repo)):
+    return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=id)
     return return_mealplan
 
 

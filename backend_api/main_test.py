@@ -137,4 +137,99 @@ def test_user_login():
     assert response.status_code == 404
 
 
+def test_create_recipe_as_bob():
+    # Login as bob
+    response = client.post("/api/user/login", json={
+        "username": "bob",
+        "password": "bobpass",
+    })
+
+    # Create a recipe with a unique name
+    recipe_title = f"test_{int(time.time())}"
+    response = client.post("/api/recipe", json={
+        "title": recipe_title,
+        "instructions": "Mix ingredients and cook for 10 minutes.",
+        "cook_time": 10,
+        "ingredients": [
+            {"name": "salt", "quantity": 1.0, "unit": "tsp"}
+        ],
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["title"] == recipe_title
+    assert "id" in data
+    assert data["cook_time"] == 10
+    assert any(i["name"] == "salt" for i in data["ingredients"])
+    recipe_id = data["id"]
+
+        # Update the recipe
+    updated_title = f"{recipe_title}_updated"
+    response = client.put(f"/api/recipe/{recipe_id}", json={
+        "title": updated_title,
+        "instructions": "Updated instructions.",
+        "cook_time": 30,
+        "ingredients": [
+            {"name": "pepper", "quantity": 0.5, "unit": "tsp"},
+            {"name": "olive oil", "quantity": 2.0, "unit": "tbsp"},
+        ],
+    })
+    assert response.status_code == 200
+    updated = response.json()
+    assert updated["id"] == recipe_id
+    assert updated["title"] == updated_title
+    assert updated["instructions"] == "Updated instructions."
+    assert updated["cook_time"] == 30
+    ingredient_names = [i["name"] for i in updated["ingredients"]]
+    assert "pepper" in ingredient_names
+    assert "olive oil" in ingredient_names
+    assert "salt" not in ingredient_names
+    
+
+
+    # Logout and try to update without auth
+    client.get("/api/user/logout")
+    response = client.put(f"/api/recipe/{recipe_id}", json={
+        "title": updated_title,
+        "instructions": "Should fail.",
+        "cook_time": 5,
+        "ingredients": [],
+    })
+    assert response.status_code == 401
+
+
+        # Login as alice and try to update bob's recipe (should be forbidden)
+    client.post("/api/user/login", json={
+        "username": "alice",
+        "password": "alicepass",
+    })
+    response = client.put(f"/api/recipe/{recipe_id}", json={
+        "title": updated_title,
+        "instructions": "Alice's hijack attempt.",
+        "cook_time": 5,
+        "ingredients": [],
+    })
+    assert response.status_code == 403
+
+    # Login back as bob and delete the recipe
+    client.post("/api/user/login", json={
+        "username": "bob",
+        "password": "bobpass",
+    })
+    response = client.delete(f"/api/recipe/{recipe_id}")
+    assert response.status_code == 200
+
+    # Verify the recipe is gone
+    response = client.get(f"/api/recipe/{recipe_id}")
+    assert response.status_code == 404
+
+
+
+
+
+
+
+
+
+
+
 
