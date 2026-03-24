@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
-state_change(app, "prod") # "dev" or "prod"
+state_change(app, "dev") # "dev" or "prod"
 
 count = 0
 
@@ -153,6 +153,11 @@ def delete_recipe(request:Request, id: int, repo: RecipeRepository = Depends(get
         raise HTTPException(status_code=403, detail="User is not the author of this recipe")
     recipe = repo.del_recipe(id)
     return recipe
+
+@app.get("/api/user/recipes")
+@require_jwt
+def get_recipe_by_user_id(request:Request, user_id: int, repo: RecipeRepository = Depends(get_recipe_repo)):
+    pass
 
 @app.get("/api/recipe_list")
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
