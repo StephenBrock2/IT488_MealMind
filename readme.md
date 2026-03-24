@@ -117,10 +117,7 @@ Swagger Docs: http://localhost:8000/docs
 
 ## Current API Endpoints
 
-GET /api/health – Health check  
-GET /api/count – Incrementing counter  
-GET /api/ingredient  
-POST /api/ingredient  
+Run the application back end, then look at localhost:8000/docs
 
 ---
 
@@ -139,3 +136,4 @@ POST /api/ingredient
 - Material UI
 - FastAPI
 - Uvicorn
+- PostgreSQL
