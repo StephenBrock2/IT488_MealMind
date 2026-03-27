@@ -204,18 +204,7 @@ class SQLUserRepository(UserRepository):
 
 class SQLRecipeRepository(RecipeRepository):
 
-    def create_recipe(self, recipe: Recipe) -> Recipe:
-        cur, conn = db_connect()
-
-        cur.execute(
-            "INSERT INTO recipes (title, instructions, user_id, cook_time) VALUES (%s, %s, %s, %s) RETURNING id",
-            (recipe.title, recipe.instructions, recipe.user_id, recipe.cook_time)
-        )
-        recipe.id = cur.fetchone()[0]
-        db_disconnect(cur, conn)
-        return recipe
-
-    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
+    def create_recipe(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
         cur, conn = db_connect()
 
         cur.execute(

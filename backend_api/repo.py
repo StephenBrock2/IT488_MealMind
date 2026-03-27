@@ -126,7 +126,7 @@ class RecipeRepository(ABC):
     def create_recipe(self, recipe: Recipe) -> Recipe:
         pass
 
-    @abstractmethod
+
     def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
         pass
 

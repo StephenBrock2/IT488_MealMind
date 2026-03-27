@@ -173,14 +173,14 @@ class MemRecipeRepository(RecipeRepository):
     def __init__(self):
         self.recipes = {}
         self.next_id = 1
-
+        '''
     def create_recipe(self, recipe: Recipe) -> Recipe:
         recipe.id = self.next_id
         self.recipes[self.next_id] = recipe
         self.next_id += 1
         return recipe
-    
-    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
+        '''
+    def create_recipe(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
         recipe.id = self.next_id
         self.recipes[self.next_id] = recipe
         self.next_id += 1
@@ -443,11 +443,15 @@ def mem_recipe_repo_seed(ingredient_repo):
     "pinch",
     "slice"
     ]
+
+    ingredients = []
+    for n in range(random.randint(1, 10)):
+        ingredient = ingredient_repo.get_ingredient_by_id(ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())))
+        data = {"name": ingredient.name, "quantity": random.randint(1, 6), "unit": random.choice(measurements)}
+        ingredients.append(data)
+
     for i in recipes:
-        recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times)))
-    for recipe in recipe_repo.recipes:
-        for n in range(random.randint(1, 10)):
-            recipe_repo.add_ingredient_by_id(recipe_id=recipe, ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())), value=random.randint(1, 5), measurement=random.choice(measurements), repo=ingredient_repo)
+        recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times)), ingredients=ingredients, ing_repo=ingredient_repo)
 
     return recipe_repo
 

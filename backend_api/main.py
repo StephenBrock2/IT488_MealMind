@@ -118,21 +118,9 @@ def get_recipe_by_id(id: int, repo: RecipeRepository = Depends(get_recipe_repo))
 
 @app.post("/api/recipe")
 @require_jwt
-def create_recipe(request:Request, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
-    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time, user_id = request.state.jwt_payload['id'])
-    saved_recipe = repo.create_recipe(recipe) 
-    for i in recipe_data.ingredients:
-        ingredient = Ingredient(id=None, name= i.name)
-        saved_ingredient = ing_repo.create_ingredient(ingredient)
-        saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-        repo.add_ingredient(saved_recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
-    saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
-    return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
-
-@app.post("/api/recipe2")
-def create_recipe_2(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
     recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
-    saved_recipe = repo.create_recipe_2(recipe, recipe_data.ingredients, ing_repo) 
+    saved_recipe = repo.create_recipe(recipe, recipe_data.ingredients, ing_repo) 
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
 
