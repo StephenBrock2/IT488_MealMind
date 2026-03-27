@@ -138,6 +138,10 @@ class RecipeRepository(ABC):
         pass
 
     @abstractmethod
+    def list_recipe_by_user_id(self, id: int) -> Recipe | None:
+        pass
+
+    @abstractmethod
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         pass
 

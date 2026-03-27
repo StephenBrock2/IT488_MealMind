@@ -324,6 +324,9 @@ class SQLRecipeRepository(RecipeRepository):
     def get_recipe_by_user_id(self, id: int) -> Recipe | None:
         pass
 
+    def list_recipe_by_user_id(self, id: int) -> Recipe | None:
+        pass
+
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         cur, conn = db_connect()
         quantity = f"{value} {measurement}"

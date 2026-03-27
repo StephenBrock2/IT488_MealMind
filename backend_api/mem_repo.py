@@ -218,6 +218,9 @@ class MemRecipeRepository(RecipeRepository):
     def get_recipe_by_user_id(self, id: int) -> Recipe | None:
         pass
 
+    def list_recipe_by_user_id(self, id: int) -> Recipe | None:
+        pass
+
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Recipe:
         for n, i in enumerate(recipe.ingredients):
             if i["name"] == ingredient.name:
