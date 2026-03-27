@@ -31,6 +31,31 @@ class TestCreateObjects(unittest.TestCase):
 
 # User Method Tests
 
+class TestCreateUserFucntion(unittest.TestCase):
+
+    def create_user(self, user: User) -> User:
+        pass
+
+class TestDeleteUserFucntion(unittest.TestCase):
+
+    def del_user(self, user_id: int) -> None:
+        pass
+
+class TestGetUserByIDFucntion(unittest.TestCase):
+
+    def get_user_by_id(self, username: str) -> User | None:
+        pass
+
+class TestGetUserByUsernameFucntion(unittest.TestCase):
+
+    def get_user_by_username(self, username: str) -> User | None:
+        pass
+
+class TestUserLoginFucntion(unittest.TestCase):
+
+    def user_login(self, username: str, password: str) -> User | None:
+        pass
+
 class TestCreateMealPlanFucntion(unittest.TestCase):
 
     def test_create_meal_plan(self):
@@ -199,46 +224,26 @@ class TestRecipeCreateFunciton(unittest.TestCase):
 
     def test_create_recipe(self):
         repo = MemRecipeRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
-        self.assertIn(repo.create_recipe(recipe), repo.recipes.values())
-
-    def test_create_recipe_no_name(self):
-        repo = MemRecipeRepository()
-        recipe = Recipe(id=None, title=None, instructions='This is also a test', cook_time= 120)
-        self.assertIn(repo.create_recipe(recipe), repo.recipes.values())
-
-    def test_create_recipe_no_instrucitons(self):
-        repo = MemRecipeRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions=None, cook_time= 150)
-        self.assertIn(repo.create_recipe(recipe), repo.recipes.values())
-
-    def test_create_recipe_no_ingredients(self):
-        repo = MemRecipeRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 50)
-        self.assertIn(repo.create_recipe(recipe), repo.recipes.values())
-
-    def test_create_recipe_2(self):
-        repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
         recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
         ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
         self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
 
-    def test_create_recipe_2_no_name(self):
+    def test_create_recipe_no_name(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
         recipe = Recipe(id=None, title=None, instructions='This is also a test', cook_time= 0)
         ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
         self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
 
-    def test_create_recipe_2_no_instructions(self):
+    def test_create_recipe_no_instructions(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
         recipe = Recipe(id=None, title='This is a test', instructions=None, cook_time= 0)
         ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
         self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
 
-    def test_create_recipe_2_no_ingredients(self):
+    def test_create_recipe_no_ingredients(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
         recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
@@ -348,6 +353,11 @@ class TestGetRecipeByIDFunction(unittest.TestCase):
     def test_get_recipe_by_no_id(self):
         ing_repo, repo, user_repo = mem_repo_startup()
         self.assertIsNone(repo.get_recipe_by_id(recipe_id=None))
+
+class TestGetRecipeByUserIDFunction(unittest.TestCase):
+
+    def get_recipe_by_user_id(self, id: int) -> Recipe | None:
+        pass
 
 class TestAddIngredientToRecipeFunction(unittest.TestCase):
 

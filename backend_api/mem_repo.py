@@ -280,7 +280,9 @@ class MemRecipeRepository(RecipeRepository):
                 break
         else:
             return None
-   
+
+# Repository Seed Data Functions
+
 def mem_user_repo_seed():
     user_repo = MemUserRepository()
     password = User.hash_password('1234')
@@ -540,8 +542,3 @@ def mem_repo_startup():
     user_repo = mem_user_repo_seed()
 
     return ingredient_repo, recipe_repo, user_repo
-
-
-ingredient_repo, recipe_repo, user_repo = mem_repo_startup()
-
-print(user_repo.get_user_by_id(1))
