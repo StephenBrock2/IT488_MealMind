@@ -7,9 +7,6 @@ class User():
         self.username = username
         self.email = email
         self.password_hash = password_hash
-        self.password_salt = password_salt
-        self.login_state = False
-        self.login_token = ''
 
         self.created_recipes = {}
         self.saved_recipes = {}

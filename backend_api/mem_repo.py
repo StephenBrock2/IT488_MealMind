@@ -10,9 +10,6 @@ class MemUserRepository(UserRepository):
         self.meal_plans = {}
         self.next_meal_id = 1
 
-        self.pantries = {}
-        self.next_pantry_id = 1
-
     def create_user(self, user: User) -> User:
         for i in self.users.values():
             if i.username == user.username:
@@ -48,8 +45,13 @@ class MemUserRepository(UserRepository):
             user_list.append(user_data)
         return user_list
 
-    def user_login(username: str, password: str) -> User | None:
-        pass
+    def user_login(self, username: str, password: str) -> User | None:
+        for user in self.users.values():
+            if user.username.lower() == username.lower():
+                if user.verify_password(password) == True:
+                    return user
+        else:
+            return None
 
     def create_meal_plan(self, user_id: int, meal_plan: MealPlan) -> MealPlan:
         for id in self.users.values():
@@ -538,3 +540,8 @@ def mem_repo_startup():
     user_repo = mem_user_repo_seed()
 
     return ingredient_repo, recipe_repo, user_repo
+
+
+ingredient_repo, recipe_repo, user_repo = mem_repo_startup()
+
+print(user_repo.get_user_by_id(1))

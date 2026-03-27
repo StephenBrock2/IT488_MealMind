@@ -271,13 +271,13 @@ def update_meal_plan(request: Request, meal_plan_id: int, meal_plan_data: MealPl
 
 @app.delete("/api/meal_plan/{id}")
 @require_jwt
-def delete_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+def delete_meal_plan(request: Request, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
     meal_plan = repo.del_meal_plan(meal_plan_id)
     return meal_plan
 
 @app.get("/api/meal_plan/{id}")
 @require_jwt
-def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+def get_meal_plan_by_id(request: Request, meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
     return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
     return return_mealplan
 
