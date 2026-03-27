@@ -77,6 +77,8 @@ def count_get():
     count += 1
     return count
 
+# Ingredient CRUD
+
 @app.get("/api/ingredient")
 def ingredient_get(name=Query(None), repo: IngredientRepository = Depends(get_ingredient_repo)):
     ingredients = repo.list_ingredients()
@@ -102,6 +104,8 @@ def ingredient_delete(id: int, repo: IngredientRepository = Depends(get_ingredie
     ingredient = Ingredient(id=id, name="")
     repo.del_ingredient(ingredient)
     return {"ok": True}
+
+# Recipe CRUD
 
 @app.get("/api/recipe")
 def get_recipe_by_title(recipe_title: str, repo: RecipeRepository = Depends(get_recipe_repo)):
@@ -154,10 +158,9 @@ def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
 
 @app.get("/api/recipe_list/user")
 @require_jwt
-def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
+def list_user_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
     return recipe_list
-
 
 @app.get("/api/recipe_reel")
 def list_six_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
@@ -168,6 +171,8 @@ def list_six_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
 def get_random_recipe(repo: RecipeRepository = Depends(get_recipe_repo)):
     return_recipe = repo.get_random_recipe()
     return {"id": return_recipe.id, "title": return_recipe.title, "cook_time": return_recipe.cook_time, "instructions": return_recipe.instructions, "ingredients": return_recipe.ingredients}
+
+# User CRUD
 
 @app.post("/api/user/register")
 def create_user(user_data: UserCreate, repo: UserRepository = Depends(get_user_repo)):
@@ -240,41 +245,40 @@ def user_test():
 def user_test_decorator(request: Request):
     return request.state.jwt_payload
 
-
+# Meal Plan CRUD
 
 @app.get("/api/meal_plan")
-# @require_jwt
-def get_user_meal_plans(#Placeholder user_id: int, 
-                        request: Request, repo: UserRepository = Depends(get_user_repo)):
-    # user_id = request.state.jwt_payload['id']
-    user_id = 1 # Placeholder
+@require_jwt
+def get_user_meal_plans(request: Request, repo: UserRepository = Depends(get_user_repo)):
+    user_id = request.state.jwt_payload['id']
     return_user_mealplans = repo.get_mealplans_by_user(user_id=user_id)
     return return_user_mealplans
 
-
 @app.post("/api/meal_plan")
-def create_meal_plan(#Placeholder user_id: int, 
-                     request: Request, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
-    user_id = 1 # Placeholder
+@require_jwt
+def create_meal_plan(request: Request, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+    user_id = request.state.jwt_payload['id']
     mealplan = MealPlan(id=None, plans=meal_plan_data.plans)
     return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
     return return_mealplan
 
 @app.post("/api/meal_plan/{id}")
-def update_meal_plan(#Placeholder user_id: int
-                    id: int, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
-    user_id = 1
-    return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=id, meal_plan_data=meal_plan_data)
+@require_jwt
+def update_meal_plan(request: Request, meal_plan_id: int, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
+    user_id = request.state.jwt_payload['id']
+    return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=meal_plan_id, meal_plan_data=meal_plan_data)
     return return_mealplan
 
 @app.delete("/api/meal_plan/{id}")
-def delete_meal_plan(id: int, repo: UserRepository = Depends(get_user_repo)):
-    meal_plan = repo.del_meal_plan(id)
+@require_jwt
+def delete_meal_plan(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    meal_plan = repo.del_meal_plan(meal_plan_id)
     return meal_plan
 
 @app.get("/api/meal_plan/{id}")
-def get_meal_plan_by_id(id: int, repo: UserRepository = Depends(get_user_repo)):
-    return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=id)
+@require_jwt
+def get_meal_plan_by_id(meal_plan_id: int, repo: UserRepository = Depends(get_user_repo)):
+    return_mealplan = repo.get_meal_plan_by_id(meal_plan_id=meal_plan_id)
     return return_mealplan
 
 
