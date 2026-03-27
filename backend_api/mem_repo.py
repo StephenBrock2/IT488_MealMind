@@ -108,33 +108,6 @@ class MemUserRepository(UserRepository):
             if meal_plan_id in user.meal_plans.keys():
                 user.meal_plans.pop(meal_plan_id)
         return None
-    
-    # Might be unecessary / Temporarily removed from repo
-    def add_recipe_to_meal_plan(self, meal_plan_id: int, meal_slot: str, recipe_id: int) -> MealPlan:
-            meal_slot = meal_slot.lower()
-            if meal_plan_id in self.meal_plans.keys():
-                self.meal_plans[meal_plan_id].plans[meal_slot] = recipe_id
-                for user in self.users.values():
-                    if meal_plan_id in user.meal_plans.keys():
-                        user.meal_plans[meal_plan_id].plans[meal_slot] = recipe_id
-                meal_plan_data = self.meal_plans[meal_plan_id].plans
-            return meal_plan_data
-    
-    # Might be unecessary / Temporarily removed from repo
-    def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
-        for id in self.meal_plans.keys():
-            if id == meal_plan_id:
-                for slot, recipe in self.meal_plans[id].plans.items():
-                    if recipe == recipe_id:
-                        self.meal_plans[id].plans[slot] = None
-                for user in self.users.values():
-                    if meal_plan_id in user.meal_plans.keys():
-                        for slot, recipe in user.meal_plans[meal_plan_id].plans.items():
-                            if recipe == recipe_id:
-                                user.meal_plans[slot] = None
-                    return self.meal_plans[meal_plan_id]
-        else:
-            return None
 
 class MemIngredientRepository(IngredientRepository):
     def __init__(self):
@@ -173,13 +146,7 @@ class MemRecipeRepository(RecipeRepository):
     def __init__(self):
         self.recipes = {}
         self.next_id = 1
-        '''
-    def create_recipe(self, recipe: Recipe) -> Recipe:
-        recipe.id = self.next_id
-        self.recipes[self.next_id] = recipe
-        self.next_id += 1
-        return recipe
-        '''
+
     def create_recipe(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
         recipe.id = self.next_id
         self.recipes[self.next_id] = recipe

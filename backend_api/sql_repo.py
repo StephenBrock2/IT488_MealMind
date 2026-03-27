@@ -185,23 +185,6 @@ class SQLUserRepository(UserRepository):
 
         db_disconnect(cur, conn)
 
-    # Might be unnecessary / Temporarily removed from repo
-    def add_recipe_to_meal_plan(self, meal_plan_id: int, recipe_id: int) -> MealPlan:
-        pass
-
-    # Might be unnecessary / Temporarily removed from repo
-    def remove_recipe_from_meal_plan(self, meal_plan_id: int, recipe_id: int) -> None:
-        pass
-
-    def add_ingredient_to_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> User:
-        pass
-
-    def remove_ingredient_from_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> None:
-        pass
-
-    def del_pantry(self, user_id: int, pantry_id: int) -> None:
-        pass
-
 class SQLRecipeRepository(RecipeRepository):
 
     def create_recipe(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:

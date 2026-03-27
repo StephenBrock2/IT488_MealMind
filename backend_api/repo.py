@@ -14,7 +14,6 @@ class User():
         self.created_recipes = {}
         self.saved_recipes = {}
         self.meal_plans = {}
-        self.pantry = {}
 
     @staticmethod
     def hash_password(password: str) -> bytes:
@@ -85,23 +84,6 @@ class UserRepository(ABC):
     def del_meal_plan(self, user_id: int, meal_plan_id: int) -> None:
         pass
 
-    # Might be unecessary
-    def add_recipe_to_meal_plan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> User:
-        pass
-    
-    # Might be unecessary
-    def remove_recipe_from_meal_plan(self, user_id: int, meal_plan_id: int, recipe_id: int) -> None:
-        pass
-
-    def add_ingredient_to_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> User:
-        pass
-
-    def remove_ingredient_from_pantry(self, user_id: int, pantry_id: int, ingredient_id: int) -> None:
-        pass
-
-    def del_pantry(self, user_id: int, pantry_id: int) -> None:
-        pass
-
 class IngredientRepository(ABC):
 
     @abstractmethod
@@ -124,10 +106,6 @@ class RecipeRepository(ABC):
 
     @abstractmethod
     def create_recipe(self, recipe: Recipe) -> Recipe:
-        pass
-
-
-    def create_recipe_2(self, recipe: Recipe, ingredients: list, ing_repo: IngredientRepository) -> Recipe:
         pass
 
     @abstractmethod
