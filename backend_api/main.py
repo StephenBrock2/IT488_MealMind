@@ -122,8 +122,8 @@ def get_recipe_by_id(id: int, repo: RecipeRepository = Depends(get_recipe_repo))
 
 @app.post("/api/recipe")
 @require_jwt
-def create_recipe(recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
-    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time)
+def create_recipe(request: Request, recipe_data: RecipeCreate, repo: RecipeRepository = Depends(get_recipe_repo), ing_repo: IngredientRepository = Depends(get_ingredient_repo)):
+    recipe = Recipe(id=None, title=recipe_data.title, instructions=recipe_data.instructions, cook_time=recipe_data.cook_time, user_id= request.state.jwt_payload['id'], username= request.state.jwt_payload['username'])
     saved_recipe = repo.create_recipe(recipe, recipe_data.ingredients, ing_repo) 
     saved_recipe = repo.get_recipe_by_id(saved_recipe.id)
     return {"id": saved_recipe.id, "title": saved_recipe.title, "cook_time": saved_recipe.cook_time, "instructions": saved_recipe.instructions, "ingredients": saved_recipe.ingredients}
@@ -148,17 +148,12 @@ def delete_recipe(request:Request, id: int, repo: RecipeRepository = Depends(get
 
 @app.get("/api/user/recipes")
 @require_jwt
-def get_recipe_by_user_id(request:Request, user_id: int, repo: RecipeRepository = Depends(get_recipe_repo)):
-    pass
+def list_recipes_by_user_id(request:Request, repo: RecipeRepository = Depends(get_recipe_repo)):
+    recipe_list = repo.list_recipes_by_user_id(id=request.state.jwt_payload['id'])
+    return recipe_list
 
 @app.get("/api/recipe_list")
 def list_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
-    recipe_list = repo.list_recipes()
-    return recipe_list
-
-@app.get("/api/recipe_list/user")
-@require_jwt
-def list_user_recipes(repo: RecipeRepository = Depends(get_recipe_repo)):
     recipe_list = repo.list_recipes()
     return recipe_list
 

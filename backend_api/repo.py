@@ -7,9 +7,6 @@ class User():
         self.username = username
         self.email = email
         self.password_hash = password_hash
-
-        self.created_recipes = {}
-        self.saved_recipes = {}
         self.meal_plans = {}
 
     @staticmethod
@@ -25,7 +22,7 @@ class Ingredient():
         self.name = name
 
 class Recipe():
-    def __init__(self, id: int, title: str, instructions: str, cook_time: int, user_id: int = None, username: str = None):
+    def __init__(self, id: int, title: str, instructions: str, cook_time: int, user_id: int, username: str):
         self.id = id
         self.title = title
         self.cook_time = cook_time

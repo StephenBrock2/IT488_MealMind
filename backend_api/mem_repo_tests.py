@@ -356,7 +356,7 @@ class TestGetRecipeByIDFunction(unittest.TestCase):
 
 class TestListRecipesByUserIDFunction(unittest.TestCase):
 
-    def list_recipe_by_user_id(self, id: int) -> Recipe | None:
+    def list_recipes_by_user_id(self, id: int) -> Recipe | None:
         pass
 
 class TestAddIngredientToRecipeFunction(unittest.TestCase):
