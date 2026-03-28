@@ -111,12 +111,12 @@ class SQLUserRepository(UserRepository):
 
         meal_plan.id = cur.fetchone()[0]
 
-        for day, meals in meal_plan.plans.items():
-            for meal_name, recipe_id in meals.items():
+        for date, meals in meal_plan.plans.items():
+            for meal_order, recipe_id in meals.items():
                 if recipe_id:
                     cur.execute(
-                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, day_of_week, meal_order) VALUES (%s, %s, %s, %s)",
-                        (meal_plan.id, recipe_id, day, meal_name)
+                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, meal_date, meal_order) VALUES (%s, %s, %s, %s)",
+                        (meal_plan.id, recipe_id, date, meal_order)
                     )
 
         db_disconnect(cur, conn)
@@ -144,12 +144,12 @@ class SQLUserRepository(UserRepository):
         else:
             plans = meal_plan_data
 
-        for day, meals in plans.items():
-            for meal_name, recipe_id in meals.items():
+        for date, meals in plans.items():
+            for meal_order, recipe_id in meals.items():
                 if recipe_id:
                     cur.execute(
-                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, day_of_week, meal_order) VALUES (%s, %s, %s, %s)",
-                        (meal_plan_id, recipe_id, day, meal_name)
+                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, meal_date, meal_order) VALUES (%s, %s, %s, %s)",
+                        (meal_plan_id, recipe_id, date, meal_order)
                     )
 
         db_disconnect(cur, conn)
@@ -171,17 +171,18 @@ class SQLUserRepository(UserRepository):
             return None
 
         cur.execute(
-            "SELECT recipe_id, day_of_week, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY day_of_week, meal_order",
+            "SELECT recipe_id, meal_date, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY meal_date, meal_order",
             (meal_plan_id,)
         )
 
         meal_data = cur.fetchall()
 
         plans = {}
-        for recipe_id, day, meal_name in meal_data:
-            if day not in plans:
-                plans[day] = {}
-            plans[day][meal_name] = recipe_id
+        for recipe_id, meal_date, meal_order in meal_data:
+            date_str = str(meal_date)
+            if date_str not in plans:
+                plans[date_str] = {}
+            plans[date_str][meal_order] = recipe_id
 
         db_disconnect(cur, conn)
 
@@ -202,17 +203,18 @@ class SQLUserRepository(UserRepository):
             meal_plan_id = row[0]
 
             cur.execute(
-                "SELECT recipe_id, day_of_week, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY day_of_week, meal_order",
+                "SELECT recipe_id, meal_date, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY meal_date, meal_order",
                 (meal_plan_id,)
             )
 
             meal_data = cur.fetchall()
 
             plans = {}
-            for recipe_id, day, meal_name in meal_data:
-                if day not in plans:
-                    plans[day] = {}
-                plans[day][meal_name] = recipe_id
+            for recipe_id, meal_date, meal_order in meal_data:
+                date_str = str(meal_date)
+                if date_str not in plans:
+                    plans[date_str] = {}
+                plans[date_str][meal_order] = recipe_id
 
             meal_plan = MealPlan(id=meal_plan_id, plans=plans)
             meal_plans.append(meal_plan)
