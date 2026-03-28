@@ -20,7 +20,7 @@ class MemUserRepository(UserRepository):
         return user
     
     def del_user(self, user_id: int) -> None:
-        if user_id in self.users.values():
+        if user_id in self.users.keys():
             self.users.pop(user_id)
         else:
             return None
@@ -167,10 +167,10 @@ class MemRecipeRepository(RecipeRepository):
         recipe.instructions = recipe_data.instructions
         recipe.ingredients = []
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id=None, name= i['name'])
+            ingredient = Ingredient(id=None, name= i.name)
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i['quantity'], measurement= i['unit'])
+            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
         return recipe
         
     def del_recipe(self, recipe_id: int) -> None:
@@ -222,7 +222,7 @@ class MemRecipeRepository(RecipeRepository):
                 recipe_data = {"id": recipe.id, "title": recipe.title, "cook_time": recipe.cook_time, "instructions": recipe.instructions, "ingredients": recipe.ingredients}
                 recipe_list.append(recipe_data)
         if recipe_list == []:
-            recipe_list == None
+            recipe_list = None
         return recipe_list
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: int, measurement: str) -> Recipe:

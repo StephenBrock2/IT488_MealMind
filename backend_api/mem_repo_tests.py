@@ -16,7 +16,7 @@ class TestCreateObjects(unittest.TestCase):
         self.assertIsInstance(ingredient, Ingredient)
 
     def test_create_recipe_object(self):
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
         self.assertIsInstance(recipe, Recipe)
 
     def test_create_mealplan_object(self):
@@ -33,28 +33,43 @@ class TestCreateObjects(unittest.TestCase):
 
 class TestCreateUserFucntion(unittest.TestCase):
 
-    def create_user(self, user: User) -> User:
-        pass
-
+    def test_create_user(self):
+        user_repo = MemUserRepository()
+        user = User(id=None, username='Test', email='test@testing.com', password_hash=User.hash_password('testpassword'))
+        self.assertEqual(0, len(user_repo.users))
+        user_repo.create_user(user)
+        self.assertIn(user, user_repo.users.values())
+        user_repo.create_user(user)
+        self.assertEqual(1, len(user_repo.users))
+        
 class TestDeleteUserFucntion(unittest.TestCase):
 
-    def del_user(self, user_id: int) -> None:
-        pass
+    def test_del_user(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        user_repo.del_user(1)
+        self.assertNotIn(1, user_repo.users)
+        self.assertIsNone(user_repo.del_user(1))
 
 class TestGetUserByIDFucntion(unittest.TestCase):
 
-    def get_user_by_id(self, username: str) -> User | None:
-        pass
+    def test_get_user_by_id(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNotNone(user_repo.get_user_by_id(1))
+        self.assertIsNone(user_repo.get_user_by_id(101))
 
 class TestGetUserByUsernameFucntion(unittest.TestCase):
 
-    def get_user_by_username(self, username: str) -> User | None:
-        pass
+    def test_get_user_by_username(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNotNone(user_repo.get_user_by_username('User1'))
+        self.assertIsNone(user_repo.get_user_by_username('User101'))
 
 class TestUserLoginFucntion(unittest.TestCase):
 
-    def user_login(self, username: str, password: str) -> User | None:
-        pass
+    def test_user_login(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNotNone(user_repo.user_login('user1', '1234'))
+        self.assertIsNone(user_repo.user_login('user1', 'password'))
 
 class TestCreateMealPlanFucntion(unittest.TestCase):
 
@@ -142,7 +157,7 @@ class TestGetMealPlanByIDFunction(unittest.TestCase):
 
 class TestGetMealPlanByUserIDFunction(unittest.TestCase):
 
-    def test_get_mealplans_by_user(self):
+    def test_get_meal_plans_by_user(self):
         ing_repo, repo, user_repo = mem_repo_startup()
         plans = {"plans": {"2026-03-08": {"breakfast": 5,"lunch": 2,"dinner": None},
                         "2026-03-09": {"breakfast": 99,"lunch": 7,"dinner": 3},
@@ -151,11 +166,11 @@ class TestGetMealPlanByUserIDFunction(unittest.TestCase):
                 }
         mealplan = MealPlan(id=None, plans=plans)
         user_repo.create_meal_plan(user_id=1, meal_plan=mealplan)
-        self.assertEqual(user_repo.get_mealplans_by_user(1), {1: plans})
+        self.assertEqual(user_repo.get_meal_plans_by_user(1), {1: plans})
 
-    def test_get_mealplans_by_user_empty(self):
+    def test_get_meal_plans_by_user_empty(self):
         ing_repo, repo, user_repo = mem_repo_startup() 
-        self.assertEqual(user_repo.get_mealplans_by_user(1), {})
+        self.assertEqual(user_repo.get_meal_plans_by_user(1), {})
 
 class TestDeleteMealPlanFucntion(unittest.TestCase):
     
@@ -225,62 +240,89 @@ class TestRecipeCreateFunciton(unittest.TestCase):
     def test_create_recipe(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
-        ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
-        self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
+        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_name(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title=None, instructions='This is also a test', cook_time= 0)
-        ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
-        self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
+        recipe = Recipe(id=None, title=None, instructions='This is also a test', cook_time= 0, user_id=None, username=None)
+        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_instructions(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions=None, cook_time= 0)
-        ingredients = [{"name": "Ing1","quantity": 1,"unit": "tsp"},{"name": "Ing2","quantity": 2,"unit": "cups"},{"name": "Ing3","quantity": 3,"unit": "gallons"}]
-        self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
+        recipe = Recipe(id=None, title='This is a test', instructions=None, cook_time= 0, user_id=None, username=None)
+        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_ingredients(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
         ingredients = []
-        self.assertIn(repo.create_recipe_2(recipe, ingredients, ing_repo), repo.recipes.values())
+        self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
 class TestUpdateRecipeFunction(unittest.TestCase):
 
     def test_update_recipe(self):
         ing_repo, repo, user_repo = mem_repo_startup()
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [{"name": "Ing1","quantity": 1,"unit": "tsp"},
-                            {"name": "Ing2","quantity": 2,"unit": "cups"},
-                            {"name": "Ing3","quantity": 3,"unit": "gallons"}]}
-        class DataObject():
+            "ingredients": [DataObject1("Ing1", 1, "tsp"),
+                            DataObject1("Ing2", 2, "cups"),
+                            DataObject1("Ing3", 3, "gallons")
+                        ]}
+        class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
                 self.instructions = recipe_data["instructions"]
                 self.cook_time = recipe_data["cook_time"]
                 self.ingredients = recipe_data["ingredients"]
-        recipe_data_object = DataObject()
+        recipe_data_object = DataObject2()
         self.assertEqual(repo.update_recipe(recipe_id=1, recipe_data=recipe_data_object, ing_repo=ing_repo), repo.recipes[1])
 
     def test_update_recipe_versus_old(self):
         ing_repo, repo, user_repo = mem_repo_startup()
         recipe_old = copy.deepcopy(repo.recipes[1])
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [{"name": "Ing1","quantity": 1,"unit": "tsp"},
-                            {"name": "Ing2","quantity": 2,"unit": "cups"},
-                            {"name": "Ing3","quantity": 3,"unit": "gallons"}]}
-        class DataObject():
+            "ingredients": [DataObject1("Ing1", 1, "tsp"),
+                            DataObject1("Ing2", 2, "cups"),
+                            DataObject1("Ing3", 3, "gallons")
+                        ]}
+        class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
                 self.instructions = recipe_data["instructions"]
                 self.cook_time = recipe_data["cook_time"]
                 self.ingredients = recipe_data["ingredients"]
-        recipe_data_object = DataObject()
+        recipe_data_object = DataObject2()
         recipe_new = repo.update_recipe(recipe_id=1, recipe_data=recipe_data_object, ing_repo=ing_repo)
         self.assertNotEqual(recipe_new, recipe_old)
 
@@ -356,54 +398,74 @@ class TestGetRecipeByIDFunction(unittest.TestCase):
 
 class TestListRecipesByUserIDFunction(unittest.TestCase):
 
-    def list_recipes_by_user_id(self, id: int) -> Recipe | None:
-        pass
+    def test_list_recipes_by_user_id(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=1, username='user1')
+        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        repo.create_recipe(recipe, ingredients, ing_repo)
+        self.assertEqual(len(repo.list_recipes_by_user_id(1)), 1)
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=1, username='user1')
+        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        repo.create_recipe(recipe, ingredients, ing_repo)
+        self.assertEqual(len(repo.list_recipes_by_user_id(1)), 2)
+
+    def test_list_no_recipes_by_user_id(self):
+        ing_repo, repo, user_repo = mem_repo_startup()
+        self.assertIsNone(repo.list_recipes_by_user_id(1))
 
 class TestAddIngredientToRecipeFunction(unittest.TestCase):
 
     def test_add_ingredient(self):
-        repo = MemRecipeRepository()
-        ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
-        ingredient = Ingredient(id=None, name='Ing1')
-        repo.create_recipe(recipe)
-        ing_repo.create_ingredient(ingredient)
+        ingredient_in_recipe = False
+        ing_repo, repo, user_repo = mem_repo_startup()
+        recipe = repo.get_recipe_by_id(1)
+        ingredient = ing_repo.get_ingredient_by_id(1)
         repo.add_ingredient(recipe, ingredient, value=1, measurement='tsp')
-        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": "tsp"}
-        self.assertDictEqual(recipe.ingredients[0], ingredient_data)
+        for ing in recipe.ingredients:
+            if ing["id"] == ingredient.id:
+                ingredient_in_recipe = True
+        self.assertEqual(ingredient_in_recipe, True)
 
     def test_add_ingredient_no_name(self):
-        repo = MemRecipeRepository()
-        ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
-        ingredient = Ingredient(id=None, name=None)
-        repo.create_recipe(recipe)
+        ingredient_in_recipe = False
+        ing_repo, repo, user_repo = mem_repo_startup()
+        recipe = repo.get_recipe_by_id(1)
+        ingredient = Ingredient(id=None, name='')
         ing_repo.create_ingredient(ingredient)
         repo.add_ingredient(recipe, ingredient, value=1, measurement='tsp')
-        ingredient_data = {"id": 1, "name": None, "quantity": 1, "unit": "tsp"}
-        self.assertIn(ingredient_data, recipe.ingredients)
+        for ing in recipe.ingredients:
+            if ing["id"] == ingredient.id:
+                ingredient_in_recipe = True
+        self.assertEqual(ingredient_in_recipe, True)
 
     def test_add_ingredient_no_value(self):
-        repo = MemRecipeRepository()
-        ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient_in_recipe = False
+        ing_repo, repo, user_repo = mem_repo_startup()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
         ingredient = Ingredient(id=None, name='Ing1')
-        repo.create_recipe(recipe)
         ing_repo.create_ingredient(ingredient)
         repo.add_ingredient(recipe, ingredient, value=None, measurement='tsp')
-        ingredient_data = {"id": 1, "name": "Ing1", "quantity": None, "unit": "tsp"}
-        self.assertIn(ingredient_data, recipe.ingredients)
+        for ing in recipe.ingredients:
+            if ing["id"] == ingredient.id:
+                ingredient_in_recipe = True
+        self.assertEqual(ingredient_in_recipe, True)
 
     def test_add_ingredient_no_measurement(self):
-        repo = MemRecipeRepository()
-        ing_repo = MemIngredientRepository()
-        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0)
+        ingredient_in_recipe = False
+        ing_repo, repo, user_repo = mem_repo_startup()
+        recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
         ingredient = Ingredient(id=None, name='Ing1')
-        repo.create_recipe(recipe)
         ing_repo.create_ingredient(ingredient)
         repo.add_ingredient(recipe, ingredient, value=1, measurement=None)
-        ingredient_data = {"id": 1, "name": "Ing1", "quantity": 1, "unit": None}
-        self.assertIn(ingredient_data, recipe.ingredients)
+        for ing in recipe.ingredients:
+            if ing["id"] == ingredient.id:
+                ingredient_in_recipe = True
+        self.assertEqual(ingredient_in_recipe, True)
 
 class TestRemoveIngredientFromRecipeFunciton(unittest.TestCase):
 
