@@ -1,4 +1,4 @@
-CREATE TABLE If NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -34,6 +34,6 @@ CREATE TABLE IF NOT EXISTS meal_plan_recipes (
     meal_plan_id INTEGER REFERENCES meal_plans(id) ON DELETE CASCADE NOT NULL,
     recipe_id INTEGER REFERENCES recipes(id) ON DELETE CASCADE,
     day_of_week VARCHAR(20) NOT NULL,
-    meal_order INTEGER NOT NULL,
+    meal_order VARCHAR(20) NOT NULL,
     PRIMARY KEY (meal_plan_id, day_of_week, meal_order)
 );

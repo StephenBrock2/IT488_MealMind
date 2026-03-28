@@ -110,10 +110,19 @@ class SQLUserRepository(UserRepository):
         )
 
         meal_plan.id = cur.fetchone()[0]
+
+        for day, meals in meal_plan.plans.items():
+            for meal_name, recipe_id in meals.items():
+                if recipe_id:
+                    cur.execute(
+                        "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, day_of_week, meal_order) VALUES (%s, %s, %s, %s)",
+                        (meal_plan.id, recipe_id, day, meal_name)
+                    )
+
         db_disconnect(cur, conn)
         return meal_plan
 
-    def update_meal_plan(self, user_id: int, meal_plan_id: int, meal_plan_data: dict) -> MealPlan | None:
+    def update_meal_plan(self, user_id: int, meal_plan_id: int, meal_plan_data: object) -> MealPlan | None:
         cur, conn = db_connect()
 
         cur.execute(
@@ -130,12 +139,17 @@ class SQLUserRepository(UserRepository):
             (meal_plan_id,)
         )
 
-        for day, recipe_ids in meal_plan_data.items():
-            for order, recipe_id in enumerate(recipe_ids):
+        if hasattr(meal_plan_data, 'plans'):
+            plans = meal_plan_data.plans
+        else:
+            plans = meal_plan_data
+
+        for day, meals in plans.items():
+            for meal_name, recipe_id in meals.items():
                 if recipe_id:
                     cur.execute(
                         "INSERT INTO meal_plan_recipes (meal_plan_id, recipe_id, day_of_week, meal_order) VALUES (%s, %s, %s, %s)",
-                        (meal_plan_id, recipe_id, day, order)
+                        (meal_plan_id, recipe_id, day, meal_name)
                     )
 
         db_disconnect(cur, conn)
@@ -151,28 +165,59 @@ class SQLUserRepository(UserRepository):
         )
 
         row = cur.fetchone()
+
+        if not row:
+            db_disconnect(cur, conn)
+            return None
+
+        cur.execute(
+            "SELECT recipe_id, day_of_week, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY day_of_week, meal_order",
+            (meal_plan_id,)
+        )
+
+        meal_data = cur.fetchall()
+
+        plans = {}
+        for recipe_id, day, meal_name in meal_data:
+            if day not in plans:
+                plans[day] = {}
+            plans[day][meal_name] = recipe_id
+
         db_disconnect(cur, conn)
 
-        if row:
-            return MealPlan(id = row[0], plans = {})
-        return None
-    
+        return MealPlan(id=row[0], plans=plans)
+
     def get_meal_plans_by_user(self, user_id: int) -> list[MealPlan]:
         cur, conn = db_connect()
 
         cur.execute(
-            "SELECT id, user_id FROM meal_plans WHERE user_id = %s",
+            "SELECT id FROM meal_plans WHERE user_id = %s",
             (user_id,)
         )
 
         rows = cur.fetchall()
-        db_disconnect(cur, conn)
 
         meal_plans = []
         for row in rows:
-            meal_plan = MealPlan(id = row[0], plans = {})
+            meal_plan_id = row[0]
+
+            cur.execute(
+                "SELECT recipe_id, day_of_week, meal_order FROM meal_plan_recipes WHERE meal_plan_id = %s ORDER BY day_of_week, meal_order",
+                (meal_plan_id,)
+            )
+
+            meal_data = cur.fetchall()
+
+            plans = {}
+            for recipe_id, day, meal_name in meal_data:
+                if day not in plans:
+                    plans[day] = {}
+                plans[day][meal_name] = recipe_id
+
+            meal_plan = MealPlan(id=meal_plan_id, plans=plans)
             meal_plans.append(meal_plan)
 
+        db_disconnect(cur, conn)
         return meal_plans
 
     def del_meal_plan(self, user_id: int, meal_plan_id: int) -> None:
@@ -293,7 +338,7 @@ class SQLRecipeRepository(RecipeRepository):
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         cur, conn = db_connect()
         cur.execute(
-            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE r.title = %s",
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE LOWER(r.title) = LOWER(%s)",
             (title,))
         row = cur.fetchone()
 

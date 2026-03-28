@@ -149,8 +149,8 @@ class TestSQLUserRepository(unittest.TestCase):
         created_meal_plan = user_repo.create_meal_plan(created_user.id, meal_plan)
 
         meal_plan_data = {
-            "Monday": [created_recipe1.id, created_recipe2.id],
-            "Tuesday": [created_recipe1.id]
+            "Monday": {"breakfast": created_recipe1.id, "lunch": created_recipe2.id},
+            "Tuesday": {"breakfast": created_recipe1.id}
         }
 
         updated_meal_plan = user_repo.update_meal_plan(created_user.id, created_meal_plan.id, meal_plan_data)
