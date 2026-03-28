@@ -320,11 +320,8 @@ class SQLRecipeRepository(RecipeRepository):
 
         db_disconnect(cur, conn)
         return None
-    
-    def get_recipe_by_user_id(self, id: int) -> Recipe | None:
-        pass
 
-    def list_recipe_by_user_id(self, id: int) -> Recipe | None:
+    def list_recipes_by_user_id(self, id: int) -> Recipe | None:
         pass
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:

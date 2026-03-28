@@ -354,12 +354,7 @@ class TestGetRecipeByIDFunction(unittest.TestCase):
         ing_repo, repo, user_repo = mem_repo_startup()
         self.assertIsNone(repo.get_recipe_by_id(recipe_id=None))
 
-class TestGetRecipeByUserIDFunction(unittest.TestCase):
-
-    def get_recipe_by_user_id(self, id: int) -> Recipe | None:
-        pass
-
-class TestListRecipeByUserIDFunction(unittest.TestCase):
+class TestListRecipesByUserIDFunction(unittest.TestCase):
 
     def list_recipe_by_user_id(self, id: int) -> Recipe | None:
         pass
