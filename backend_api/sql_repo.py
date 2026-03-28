@@ -220,9 +220,18 @@ class SQLRecipeRepository(RecipeRepository):
         db_disconnect(cur, conn)
 
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id = None, name = i.name)
+            if isinstance(i, dict):
+                name = i["name"]
+                quantity = i["quantity"]
+                unit = i["unit"]
+            else:
+                name = i.name
+                quantity = i.quantity
+                unit = i.unit
+
+            ingredient = Ingredient(id=None, name=name)
             saved_ingredient = ing_repo.create_ingredient(ingredient)
-            self.add_ingredient_by_id(recipe_id, saved_ingredient.id, value = i.quantity, measurement = i.unit)
+            self.add_ingredient_by_id(recipe_id, saved_ingredient.id, value=quantity, measurement=unit)
 
         return self.get_recipe_by_id(recipe_id)
 
@@ -238,15 +247,13 @@ class SQLRecipeRepository(RecipeRepository):
 
     def list_recipes(self) -> list[Recipe]:
         cur, conn = db_connect()
-
         cur.execute(
-            "SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id"
-        )
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.id")
         rows = cur.fetchall()
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
             self._populate_recipe_ingredients(recipe, cur)
             recipes.append(recipe)
 
@@ -255,13 +262,13 @@ class SQLRecipeRepository(RecipeRepository):
 
     def list_six_recipes(self) -> list:
         cur, conn = db_connect()
-
-        cur.execute("SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY id DESC LIMIT 6")
+        cur.execute(
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.id DESC LIMIT 6")
         rows = cur.fetchall()
 
         recipes = []
         for row in rows:
-            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], user_id = row[3], cook_time = row[4])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
             self._populate_recipe_ingredients(recipe, cur)
             recipes.append(recipe)
 
@@ -270,12 +277,12 @@ class SQLRecipeRepository(RecipeRepository):
 
     def get_random_recipe(self) -> Recipe | None:
         cur, conn = db_connect()
-
-        cur.execute("SELECT id, title, instructions, user_id, cook_time FROM recipes ORDER BY RANDOM() LIMIT 1")
+        cur.execute(
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id ORDER BY RANDOM() LIMIT 1")
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], user_id = row[3], cook_time = row[4])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -285,16 +292,13 @@ class SQLRecipeRepository(RecipeRepository):
 
     def get_recipe_by_title(self, title: str) -> Recipe | None:
         cur, conn = db_connect()
-
         cur.execute(
-            "SELECT id, title, instructions, user_id, cook_time FROM recipes WHERE title = %s",
-            (title,)
-        )
-
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE r.title = %s",
+            (title,))
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -304,16 +308,13 @@ class SQLRecipeRepository(RecipeRepository):
 
     def get_recipe_by_id(self, recipe_id: int) -> Recipe | None:
         cur, conn = db_connect()
-
         cur.execute(
-            "SELECT id, title, instructions, user_id, cook_time FROM recipes WHERE id = %s",
-            (recipe_id,)
-        )
-
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE r.id = %s",
+            (recipe_id,))
         row = cur.fetchone()
 
         if row:
-            recipe = Recipe(id = row[0], title = row[1], instructions = row[2], cook_time = row[4], user_id = row[3])
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
             self._populate_recipe_ingredients(recipe, cur)
             db_disconnect(cur, conn)
             return recipe
@@ -321,8 +322,21 @@ class SQLRecipeRepository(RecipeRepository):
         db_disconnect(cur, conn)
         return None
 
-    def list_recipes_by_user_id(self, id: int) -> Recipe | None:
-        pass
+    def list_recipes_by_user_id(self, user_id: int) -> list[Recipe]:
+        cur, conn = db_connect()
+        cur.execute(
+            "SELECT r.id, r.title, r.instructions, r.user_id, r.cook_time, u.username FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE r.user_id = %s",
+            (user_id,))
+        rows = cur.fetchall()
+
+        recipes = []
+        for row in rows:
+            recipe = Recipe(id=row[0], title=row[1], instructions=row[2], user_id=row[3], cook_time=row[4], username=row[5] if row[5] else 'Unknown')
+            self._populate_recipe_ingredients(recipe, cur)
+            recipes.append(recipe)
+
+        db_disconnect(cur, conn)
+        return recipes
 
     def add_ingredient(self, recipe: Recipe, ingredient: Ingredient, value: float, measurement: str) -> None:
         cur, conn = db_connect()
