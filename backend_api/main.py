@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # define test state versus live state
-state_change(app, "prod") # "dev" or "prod"
+state_change(app, os.getenv("PRODUCTION", "prod"))
 
 count = 0
 
