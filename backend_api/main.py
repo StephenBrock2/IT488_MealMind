@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, Query, HTTPException, Request, Response
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
@@ -63,6 +64,19 @@ def require_jwt(func):
             raise HTTPException(status_code=401, detail="Token expired")
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
+
+
+
+        # jwt_expiry_time_seconds = 60*60*24
+        # now = datetime.datetime.now(datetime.timezone.utc)
+        # payload = {
+        #     "id": 1,
+        #     "username": 'bob',
+        #     "iat": now,
+        #     "exp": now + datetime.timedelta(seconds=jwt_expiry_time_seconds),
+        # }
+
+
         request.state.jwt_payload = payload
         return func(*args, request=request, **kwargs)
     return wrapper
@@ -279,4 +293,13 @@ def get_meal_plan_by_id(request: Request, meal_plan_id: int, repo: UserRepositor
 
 
 DIST_DIR = Path(__file__).parent / "frontend_dist"
-app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="frontend")
+app.mount("/assets", StaticFiles(directory=DIST_DIR / "assets"), name="assets")
+
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    file_path = (DIST_DIR / full_path).resolve()
+    if not file_path.is_relative_to(DIST_DIR.resolve()):
+        raise HTTPException(status_code=400, detail="Invalid path")
+    if file_path.is_file():
+        return FileResponse(file_path)
+    return FileResponse(DIST_DIR / "index.html")

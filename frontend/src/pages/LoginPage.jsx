@@ -10,12 +10,12 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [errors, setErrors] = useState({});
@@ -23,17 +23,24 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const isValid = useMemo(() => {
-    return emailRegex.test(email.trim()) && password.length > 0;
-  }, [email, password]);
+    // return emailRegex.test(email.trim()) && password.length > 0;
+    return true
+  }, [username, password]);
+
 
   const validate = () => {
     const e = {};
 
-    if (!email.trim()) {
-      e.email = "Email is required.";
-    } else if (!emailRegex.test(email.trim())) {
-      e.email = "Enter a valid email address.";
+    // if (!email.trim()) {
+    //   e.email = "Email is required.";
+    // } else if (!emailRegex.test(email.trim())) {
+    //   e.email = "Enter a valid email address.";
+    // }
+
+    if (!username.trim()) {
+      e.username = "Username is required.";
     }
+
 
     if (!password) {
       e.password = "Password is required.";
@@ -54,11 +61,20 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || "Invalid username or password.");
+      }
 
       navigate("/dashboard");
-    } catch {
-      setSubmitError("Invalid email or password.");
+    } catch (err) {
+      setSubmitError(err.message || "Invalid username or password.");
     } finally {
       setSubmitting(false);
     }
@@ -100,12 +116,11 @@ export default function LoginPage() {
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={2}>
                 <TextField
-                  label="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={!!errors.email}
-                  helperText={errors.email}
+                  label="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  error={!!errors.username}
+                  helperText={errors.username}
                   fullWidth
                 />
 
