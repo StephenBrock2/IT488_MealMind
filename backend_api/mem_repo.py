@@ -152,12 +152,11 @@ class MemRecipeRepository(RecipeRepository):
         recipe.id = self.next_id
         self.recipes[recipe.id] = recipe
         self.next_id += 1
-
         for i in ingredients:
-            ingredient = Ingredient(id=None, name= i.name)
+            ingredient = Ingredient(id=None, name= i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+            self.add_ingredient(recipe, saved_ingredient, value= i["quantity"], measurement= i["unit"])
         return recipe
     
     def update_recipe(self, recipe_id: int, recipe_data: object, ing_repo: IngredientRepository) -> Recipe:
@@ -167,10 +166,10 @@ class MemRecipeRepository(RecipeRepository):
         recipe.instructions = recipe_data.instructions
         recipe.ingredients = []
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id=None, name= i.name)
+            ingredient = Ingredient(id=None, name= i["name"])
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i.quantity, measurement= i.unit)
+            self.add_ingredient(recipe, saved_ingredient, value= i["quantity"], measurement= i["unit"])
         return recipe
         
     def del_recipe(self, recipe_id: int) -> None:
@@ -429,8 +428,9 @@ def mem_recipe_repo_seed(ingredient_repo):
     ingredients = []
     for n in range(random.randint(1, 10)):
         ingredient = ingredient_repo.get_ingredient_by_id(ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())))
-        data = DataObject(name= ingredient.name, quantity= random.randint(1, 6), unit= random.choice(measurements))
-        ingredients.append(data)
+        ingredient_data = {"name": ingredient.name, "quantity": random.randint(1, 6), "unit": random.choice(measurements)}
+        #data = DataObject(name= ingredient.name, quantity= random.randint(1, 6), unit= random.choice(measurements))
+        ingredients.append(ingredient_data)
 
     for i in recipes:
         recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times), user_id=None, username=None), ingredients=ingredients, ing_repo=ingredient_repo)

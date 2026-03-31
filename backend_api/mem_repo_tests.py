@@ -240,37 +240,22 @@ class TestRecipeCreateFunciton(unittest.TestCase):
     def test_create_recipe(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=None, username=None)
-        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        ingredients = [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]
         self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_name(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe = Recipe(id=None, title=None, instructions='This is also a test', cook_time= 0, user_id=None, username=None)
-        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        ingredients = [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]
         self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_instructions(self):
         repo = MemRecipeRepository()
         ing_repo = MemIngredientRepository()
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe = Recipe(id=None, title='This is a test', instructions=None, cook_time= 0, user_id=None, username=None)
-        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        ingredients = [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]
         self.assertIn(repo.create_recipe(recipe, ingredients, ing_repo), repo.recipes.values())
 
     def test_create_recipe_no_ingredients(self):
@@ -284,16 +269,8 @@ class TestUpdateRecipeFunction(unittest.TestCase):
 
     def test_update_recipe(self):
         ing_repo, repo, user_repo = mem_repo_startup()
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [DataObject1("Ing1", 1, "tsp"),
-                            DataObject1("Ing2", 2, "cups"),
-                            DataObject1("Ing3", 3, "gallons")
-                        ]}
+            "ingredients": [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]}
         class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
@@ -306,16 +283,8 @@ class TestUpdateRecipeFunction(unittest.TestCase):
     def test_update_recipe_versus_old(self):
         ing_repo, repo, user_repo = mem_repo_startup()
         recipe_old = copy.deepcopy(repo.recipes[1])
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [DataObject1("Ing1", 1, "tsp"),
-                            DataObject1("Ing2", 2, "cups"),
-                            DataObject1("Ing3", 3, "gallons")
-                        ]}
+            "ingredients": [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]}
         class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
@@ -400,17 +369,12 @@ class TestListRecipesByUserIDFunction(unittest.TestCase):
 
     def test_list_recipes_by_user_id(self):
         ing_repo, repo, user_repo = mem_repo_startup()
-        class DataObject1():
-            def __init__(self, n, q, u):
-                self.name = n
-                self.quantity = q
-                self.unit = u
         recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=1, username='user1')
-        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        ingredients = [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]
         repo.create_recipe(recipe, ingredients, ing_repo)
         self.assertEqual(len(repo.list_recipes_by_user_id(1)), 1)
         recipe = Recipe(id=None, title='This is a test', instructions='This is also a test', cook_time= 0, user_id=1, username='user1')
-        ingredients = [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gallons")]
+        ingredients = [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]
         repo.create_recipe(recipe, ingredients, ing_repo)
         self.assertEqual(len(repo.list_recipes_by_user_id(1)), 2)
 
