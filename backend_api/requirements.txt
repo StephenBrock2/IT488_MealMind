@@ -5,4 +5,4 @@ uvicorn
 pydantic
 pytest
 bcrypt
-PyJWT
+PyJWT>=2.0.0
