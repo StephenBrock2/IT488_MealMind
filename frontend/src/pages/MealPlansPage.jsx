@@ -34,7 +34,7 @@ function formatDisplayDate(date) {
 
 function getStartOfWeek(date) {
   const copy = new Date(date);
-  const day = copy.getDay(); 
+  const day = copy.getDay();
   copy.setDate(copy.getDate() - day);
   copy.setHours(0, 0, 0, 0);
   return copy;
@@ -60,7 +60,6 @@ function formatWeekRange(start, end) {
     year: "numeric",
   })}`;
 }
-
 
 function SlotCard({ slot, recipe, onAdd, onRemove }) {
   return (
@@ -196,40 +195,106 @@ export default function MealPlansPage() {
   }, [weekDates]);
 
   useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-    const fetchRecipes = async () => {
+  const fetchData = async () => {
+    if (!cancelled) {
+      setRecipesLoading(true);
+    }
+
+    try {
+      const recipesRes = await fetch("/api/recipe_list", {
+        credentials: "include",
+      });
+
+      if (!recipesRes.ok) {
+        throw new Error(`Recipes request failed (${recipesRes.status})`);
+      }
+
+      const recipesData = await recipesRes.json();
+      const recipeList = Array.isArray(recipesData) ? recipesData : [];
+
+      if (cancelled) return;
+
+      setAvailableRecipes(recipeList);
+
+      const recipesById = Object.fromEntries(
+        recipeList.map((recipe) => [
+          recipe.id,
+          {
+            id: recipe.id,
+            title: recipe.title,
+            cook_time: recipe.cook_time ?? null,
+          },
+        ])
+      );
+
+      const mealPlanRes = await fetch("/api/meal_plan", {
+        credentials: "include",
+      });
+
+      if (mealPlanRes.status === 401) {
+        if (!cancelled) {
+          setMealPlan({});
+        }
+        return;
+      }
+
+      if (!mealPlanRes.ok) {
+        throw new Error(`Meal plan request failed (${mealPlanRes.status})`);
+      }
+
+      const mealPlanData = await mealPlanRes.json();
+
+      const mealPlanEntries = Object.entries(mealPlanData || {});
+      const latestEntry = mealPlanEntries.sort(
+        ([a], [b]) => Number(b) - Number(a)
+      )[0];
+
+      const rawPlans = latestEntry?.[1] ?? {};
+
+      const hydratedPlans = Object.fromEntries(
+        Object.entries(rawPlans).map(([dateKey, slots]) => [
+          dateKey,
+          {
+            breakfast:
+              slots?.breakfast != null
+                ? (recipesById[slots.breakfast] ?? null)
+                : null,
+            lunch:
+              slots?.lunch != null
+                ? (recipesById[slots.lunch] ?? null)
+                : null,
+            dinner:
+              slots?.dinner != null
+                ? (recipesById[slots.dinner] ?? null)
+                : null,
+          },
+        ])
+      );
+
       if (!cancelled) {
-        setRecipesLoading(true);
+        setMealPlan(hydratedPlans);
+        setDirty(false);
       }
-
-      try {
-        const res = await fetch("/api/recipe_list");
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
-
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : [];
-
-        if (!cancelled) {
-          setAvailableRecipes(list);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setAvailableRecipes([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setRecipesLoading(false);
-        }
+    } catch (err) {
+      if (!cancelled) {
+        setAvailableRecipes([]);
+        setMealPlan({});
       }
-    };
+    } finally {
+      if (!cancelled) {
+        setRecipesLoading(false);
+      }
+    }
+  };
 
-    fetchRecipes();
+  fetchData();
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  return () => {
+    cancelled = true;
+  };
+   }, []);
 
   const handleViewChange = (_, nextView) => {
     if (nextView) {
@@ -327,6 +392,7 @@ export default function MealPlansPage() {
 
       const res = await fetch("/api/meal_plan", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

@@ -17,11 +17,12 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { visuallyHidden } from "@mui/utils";
 import { colors } from "../constants/colors";
-
 
 function descendingComparator(a, b, orderBy) {
   const aValue = a[orderBy] ?? "";
@@ -129,6 +130,19 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+
+        <TableCell
+          align="right"
+          sx={{
+            color: colors.textPrimary,
+            fontWeight: 700,
+            fontSize: "0.95rem",
+            pr: 3,
+            width: 140,
+          }}
+        >
+          Actions
+        </TableCell>
       </TableRow>
     </TableHead>
   );
@@ -227,13 +241,13 @@ EnhancedTableToolbar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
 };
 
-function RecipeDetailsRow({ recipe, open }) {
+function RecipeDetailsRow({ recipe, open, colSpan }) {
   const cookTime = recipe.cook_time ?? recipe.cookingTimeMinutes ?? "—";
 
   return (
     <TableRow>
       <TableCell
-        colSpan={3}
+        colSpan={colSpan}
         sx={{
           py: 0,
           borderBottom: `1px solid ${colors.border}`,
@@ -337,9 +351,18 @@ function RecipeDetailsRow({ recipe, open }) {
 RecipeDetailsRow.propTypes = {
   open: PropTypes.bool.isRequired,
   recipe: PropTypes.object.isRequired,
+  colSpan: PropTypes.number,
 };
 
-export default function SavedRecipesTable({ recipes = [] }) {
+RecipeDetailsRow.defaultProps = {
+  colSpan: 4,
+};
+
+export default function SavedRecipesTable({
+  recipes = [],
+  onDeleteRecipe,
+  deletingRecipeId = null,
+}) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("title");
   const [selected, setSelected] = React.useState([]);
@@ -410,6 +433,14 @@ export default function SavedRecipesTable({ recipes = [] }) {
     }));
   };
 
+  const handleDeleteRecipe = async (event, recipe) => {
+    event.stopPropagation();
+
+    if (!onDeleteRecipe) return;
+
+    await onDeleteRecipe(recipe);
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -425,7 +456,11 @@ export default function SavedRecipesTable({ recipes = [] }) {
   );
 
   const visibleRows = React.useMemo(
-    () => sortedRecipes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    () =>
+      sortedRecipes.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      ),
     [sortedRecipes, page, rowsPerPage]
   );
 
@@ -484,6 +519,7 @@ export default function SavedRecipesTable({ recipes = [] }) {
                 const isOpen = !!openRows[recipe._rowId];
                 const labelId = `saved-recipe-checkbox-${index}`;
                 const isAltRow = index % 2 === 1;
+                const isDeleting = deletingRecipeId === recipe.id;
 
                 return (
                   <React.Fragment key={recipe._rowId}>
@@ -495,8 +531,8 @@ export default function SavedRecipesTable({ recipes = [] }) {
                         backgroundColor: isItemSelected
                           ? alpha(colors.green, 0.12)
                           : isAltRow
-                          ? colors.rowAlt
-                          : colors.white,
+                            ? colors.rowAlt
+                            : colors.white,
                         transition: "background-color 0.2s ease",
                         "&:hover": {
                           backgroundColor: isItemSelected
@@ -504,14 +540,18 @@ export default function SavedRecipesTable({ recipes = [] }) {
                             : colors.greenHover,
                         },
                         "& td, & th": {
-                          borderBottom: isOpen ? "none" : `1px solid ${colors.border}`,
+                          borderBottom: isOpen
+                            ? "none"
+                            : `1px solid ${colors.border}`,
                         },
                       }}
                       onClick={() => handleToggleRow(recipe._rowId)}
                     >
                       <TableCell sx={{ width: 64 }}>
                         <IconButton
-                          aria-label={isOpen ? "collapse recipe row" : "expand recipe row"}
+                          aria-label={
+                            isOpen ? "collapse recipe row" : "expand recipe row"
+                          }
                           size="small"
                           onClick={(event) => {
                             event.stopPropagation();
@@ -531,7 +571,11 @@ export default function SavedRecipesTable({ recipes = [] }) {
                             },
                           }}
                         >
-                          {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                          {isOpen ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
                         </IconButton>
                       </TableCell>
 
@@ -563,9 +607,27 @@ export default function SavedRecipesTable({ recipes = [] }) {
                       >
                         {recipe.title}
                       </TableCell>
+
+                      <TableCell align="right" sx={{ pr: 3 }}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          startIcon={<DeleteOutlineIcon />}
+                          onClick={(event) => handleDeleteRecipe(event, recipe)}
+                          disabled={isDeleting}
+                          sx={{
+                            borderRadius: "12px",
+                            textTransform: "none",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </Button>
+                      </TableCell>
                     </TableRow>
 
-                    <RecipeDetailsRow recipe={recipe} open={isOpen} />
+                    <RecipeDetailsRow recipe={recipe} open={isOpen} colSpan={4} />
                   </React.Fragment>
                 );
               })}
@@ -584,10 +646,11 @@ export default function SavedRecipesTable({ recipes = [] }) {
           sx={{
             borderTop: `1px solid ${colors.border}`,
             backgroundColor: "#FCFCFC",
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-              color: colors.textSecondary,
-              fontWeight: 500,
-            },
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+              {
+                color: colors.textSecondary,
+                fontWeight: 500,
+              },
             "& .MuiIconButton-root": {
               color: colors.green,
             },
@@ -600,4 +663,11 @@ export default function SavedRecipesTable({ recipes = [] }) {
 
 SavedRecipesTable.propTypes = {
   recipes: PropTypes.array,
+  onDeleteRecipe: PropTypes.func,
+  deletingRecipeId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
+
+SavedRecipesTable.defaultProps = {
+  onDeleteRecipe: undefined,
+  deletingRecipeId: null,
 };
