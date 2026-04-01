@@ -269,8 +269,13 @@ class TestUpdateRecipeFunction(unittest.TestCase):
 
     def test_update_recipe(self):
         ing_repo, repo, user_repo = mem_repo_startup()
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]}
+            "ingredients": [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gal")]}
         class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
@@ -283,8 +288,13 @@ class TestUpdateRecipeFunction(unittest.TestCase):
     def test_update_recipe_versus_old(self):
         ing_repo, repo, user_repo = mem_repo_startup()
         recipe_old = copy.deepcopy(repo.recipes[1])
+        class DataObject1():
+            def __init__(self, n, q, u):
+                self.name = n
+                self.quantity = q
+                self.unit = u
         recipe_data = {"title": "Test","instructions": "This is a test","cook_time": 120,
-            "ingredients": [{"name": "Ing1", "quantity": 1, "unit": "tsp"}, {"name": "Ing2", "quantity": 2, "unit": "cups"}, {"name": "Ing3", "quantity": 3, "unit": "gallons"}]}
+            "ingredients": [DataObject1("Ing1", 1, "tsp"), DataObject1("Ing2", 2, "cups"), DataObject1("Ing3", 3, "gal")]}
         class DataObject2():
             def __init__(self):
                 self.title = recipe_data["title"]
