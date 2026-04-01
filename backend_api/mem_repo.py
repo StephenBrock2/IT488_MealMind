@@ -57,8 +57,8 @@ class MemUserRepository(UserRepository):
             if id.id == user_id:
                 user = id
                 break
-            else:
-                return None
+        else:
+            return None
         for i in self.meal_plans.keys():
             if i == meal_plan.id:
                 return self.meal_plans[i]
@@ -166,10 +166,10 @@ class MemRecipeRepository(RecipeRepository):
         recipe.instructions = recipe_data.instructions
         recipe.ingredients = []
         for i in recipe_data.ingredients:
-            ingredient = Ingredient(id=None, name= i["name"])
+            ingredient = Ingredient(id=None, name= i.name)
             saved_ingredient = ing_repo.create_ingredient(ingredient)
             saved_ingredient = ing_repo.get_ingredient_by_id(saved_ingredient.id)
-            self.add_ingredient(recipe, saved_ingredient, value= i["quantity"], measurement= i["unit"])
+            self.add_ingredient(recipe, saved_ingredient, value= i.name, measurement= i.name)
         return recipe
         
     def del_recipe(self, recipe_id: int) -> None:

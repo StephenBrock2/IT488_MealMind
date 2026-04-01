@@ -102,7 +102,7 @@ def ingredient_get(name=Query(None), repo: IngredientRepository = Depends(get_in
     # if there is a name query string, filter results by name 
     if name:
         for ingredient in ingredients:
-            if name.lower() in ingredient.name.lower():
+            if name.lower() in ingredient.lower():
                 ingredientSearchedList.append(ingredient)
         return {"ingredients": ingredientSearchedList}
 
