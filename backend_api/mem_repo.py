@@ -140,7 +140,7 @@ class MemIngredientRepository(IngredientRepository):
     def list_ingredients(self) -> list[Ingredient]:
         ingredient_list = []
         for i in self.ingredients.values():
-            ingredient_list.append(i.name)
+            ingredient_list.append(i)
         return ingredient_list
 
 class MemRecipeRepository(RecipeRepository):
