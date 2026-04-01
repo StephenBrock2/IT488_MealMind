@@ -44,3 +44,4 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DATABASE_PASS: ${{ secrets.DATABASE_PASS }}
+        JWT_KEY: ${{ secrets.JWT_KEY }}
