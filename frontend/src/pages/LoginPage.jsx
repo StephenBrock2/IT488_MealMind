@@ -10,8 +10,6 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 
-// const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -23,24 +21,15 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const isValid = useMemo(() => {
-    // return emailRegex.test(email.trim()) && password.length > 0;
-    return true
+    return true;
   }, [username, password]);
-
 
   const validate = () => {
     const e = {};
 
-    // if (!email.trim()) {
-    //   e.email = "Email is required.";
-    // } else if (!emailRegex.test(email.trim())) {
-    //   e.email = "Enter a valid email address.";
-    // }
-
     if (!username.trim()) {
       e.username = "Username is required.";
     }
-
 
     if (!password) {
       e.password = "Password is required.";
@@ -64,7 +53,10 @@ export default function LoginPage() {
       const res = await fetch("/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+        }),
       });
 
       if (!res.ok) {
@@ -105,7 +97,7 @@ export default function LoginPage() {
               Welcome back
             </Typography>
           </Box>
-          
+
           <Box sx={{ p: 3 }}>
             {submitError && (
               <Alert severity="error" sx={{ mb: 2 }}>
@@ -147,19 +139,19 @@ export default function LoginPage() {
                 </Button>
 
                 <Typography variant="body2" sx={{ textAlign: "center" }}>
-  Don’t have an account?{" "}
-  <Box
-    component="span"
-    onClick={() => navigate("/register")}
-    sx={{
-      color: "#F6784C",
-      fontWeight: 600,
-      cursor: "pointer",
-      "&:hover": { textDecoration: "underline" },
-    }}
-  >
-    Create one
-  </Box>
+                  Don’t have an account?{" "}
+                  <Box
+                    component="span"
+                    onClick={() => navigate("/register")}
+                    sx={{
+                      color: "#F6784C",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                  >
+                    Create one
+                  </Box>
                 </Typography>
               </Stack>
             </Box>

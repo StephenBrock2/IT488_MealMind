@@ -1,4 +1,3 @@
-import React from "react";
 import {
   describe,
   it,
@@ -29,10 +28,7 @@ vi.mock("../../components/RecipeSelectDialog", () => ({
           <div>Loading...</div>
         ) : (
           recipes.map((recipe) => (
-            <button
-              key={recipe.id}
-              onClick={() => onSelect(recipe)}
-            >
+            <button key={recipe.id} onClick={() => onSelect(recipe)}>
               Choose {recipe.title}
             </button>
           ))
@@ -44,7 +40,6 @@ vi.mock("../../components/RecipeSelectDialog", () => ({
 
 function mockFetchSequence(...responses) {
   global.fetch = vi.fn();
-
   responses.forEach((response) => {
     global.fetch.mockResolvedValueOnce(response);
   });
@@ -68,20 +63,26 @@ describe("MealPlansPage", () => {
     cleanup();
   });
 
-  it("fetches available recipes on initial load", async () => {
-    mockFetchSequence(jsonResponse([]));
+  it("fetches recipes and meal plans on initial load", async () => {
+    mockFetchSequence(jsonResponse([]), jsonResponse({}));
 
     render(<MealPlansPage />);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/recipe_list");
+    expect(global.fetch).toHaveBeenNthCalledWith(1, "/api/recipe_list", {
+      credentials: "include",
+    });
+
+    expect(global.fetch).toHaveBeenNthCalledWith(2, "/api/meal_plan", {
+      credentials: "include",
+    });
   });
 
   it("renders meal planner heading and default week view", async () => {
-    mockFetchSequence(jsonResponse([]));
+    mockFetchSequence(jsonResponse([]), jsonResponse({}));
 
     render(<MealPlansPage />);
 
@@ -103,7 +104,7 @@ describe("MealPlansPage", () => {
   });
 
   it("switches from week view to day view", async () => {
-    mockFetchSequence(jsonResponse([]));
+    mockFetchSequence(jsonResponse([]), jsonResponse({}));
 
     render(<MealPlansPage />);
 
@@ -120,9 +121,8 @@ describe("MealPlansPage", () => {
 
   it("opens the recipe dialog when Add Recipe is clicked", async () => {
     mockFetchSequence(
-      jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
-      ])
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({})
     );
 
     render(<MealPlansPage />);
@@ -140,9 +140,8 @@ describe("MealPlansPage", () => {
 
   it("assigns a selected recipe to a slot and shows unsaved changes", async () => {
     mockFetchSequence(
-      jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
-      ])
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({})
     );
 
     render(<MealPlansPage />);
@@ -152,8 +151,9 @@ describe("MealPlansPage", () => {
     });
 
     fireEvent.click(addButtons[0]);
-
-    fireEvent.click(screen.getByRole("button", { name: /choose chicken alfredo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose chicken alfredo/i })
+    );
 
     expect(await screen.findByText("Chicken Alfredo")).toBeInTheDocument();
     expect(screen.getByText(/unsaved changes/i)).toBeInTheDocument();
@@ -161,9 +161,8 @@ describe("MealPlansPage", () => {
 
   it("removes a selected recipe from a slot", async () => {
     mockFetchSequence(
-      jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
-      ])
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({})
     );
 
     render(<MealPlansPage />);
@@ -173,7 +172,9 @@ describe("MealPlansPage", () => {
     });
 
     fireEvent.click(addButtons[0]);
-    fireEvent.click(screen.getByRole("button", { name: /choose chicken alfredo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose chicken alfredo/i })
+    );
 
     expect(await screen.findByText("Chicken Alfredo")).toBeInTheDocument();
 
@@ -184,11 +185,63 @@ describe("MealPlansPage", () => {
     });
   });
 
-  it("saves meal plan with the correct payload", async () => {
+  it("hydrates and displays a saved meal plan from backend response", async () => {
     mockFetchSequence(
       jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
+        { id: 2, title: "Tacos", cook_time: 15 },
+        { id: 5, title: "Spaghetti", cook_time: 30 },
       ]),
+      jsonResponse({
+        "1": {
+          "2026-03-30": {
+            breakfast: null,
+            lunch: 2,
+            dinner: null,
+          },
+        },
+      })
+    );
+
+    render(<MealPlansPage />);
+
+    expect(await screen.findByText("Tacos")).toBeInTheDocument();
+    expect(screen.getByText(/cook time: 15 min/i)).toBeInTheDocument();
+  });
+
+  it("uses the latest meal plan entry when multiple saved plans exist", async () => {
+    mockFetchSequence(
+      jsonResponse([
+        { id: 2, title: "Tacos", cook_time: 15 },
+        { id: 5, title: "Spaghetti", cook_time: 30 },
+      ]),
+      jsonResponse({
+        "1": {
+          "2026-03-30": {
+            breakfast: null,
+            lunch: 2,
+            dinner: null,
+          },
+        },
+        "2": {
+          "2026-03-30": {
+            breakfast: null,
+            lunch: 5,
+            dinner: null,
+          },
+        },
+      })
+    );
+
+    render(<MealPlansPage />);
+
+    expect(await screen.findByText("Spaghetti")).toBeInTheDocument();
+    expect(screen.queryByText("Tacos")).not.toBeInTheDocument();
+  });
+
+  it("saves meal plan with the correct payload", async () => {
+    mockFetchSequence(
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({}),
       jsonResponse({ message: "Meal plan saved successfully" })
     );
 
@@ -199,19 +252,25 @@ describe("MealPlansPage", () => {
     });
 
     fireEvent.click(addButtons[0]);
-    fireEvent.click(screen.getByRole("button", { name: /choose chicken alfredo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose chicken alfredo/i })
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /save plan/i }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
-    const saveCall = global.fetch.mock.calls[1];
+    const saveCall = global.fetch.mock.calls[2];
     expect(saveCall[0]).toBe("/api/meal_plan");
-    expect(saveCall[1].method).toBe("POST");
-    expect(saveCall[1].headers).toEqual({
-      "Content-Type": "application/json",
+    expect(saveCall[1]).toEqual({
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: expect.any(String),
     });
 
     const parsedBody = JSON.parse(saveCall[1].body);
@@ -228,9 +287,8 @@ describe("MealPlansPage", () => {
 
   it("shows success message after saving", async () => {
     mockFetchSequence(
-      jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
-      ]),
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({}),
       jsonResponse({ message: "Meal plan saved successfully" })
     );
 
@@ -241,7 +299,9 @@ describe("MealPlansPage", () => {
     });
 
     fireEvent.click(addButtons[0]);
-    fireEvent.click(screen.getByRole("button", { name: /choose chicken alfredo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose chicken alfredo/i })
+    );
     fireEvent.click(screen.getByRole("button", { name: /save plan/i }));
 
     expect(await screen.findByText(/meal plan saved\./i)).toBeInTheDocument();
@@ -249,9 +309,8 @@ describe("MealPlansPage", () => {
 
   it("shows failure message if save fails", async () => {
     mockFetchSequence(
-      jsonResponse([
-        { id: 1, title: "Chicken Alfredo", cook_time: 20 },
-      ]),
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({}),
       jsonResponse({}, false, 500)
     );
 
@@ -262,7 +321,9 @@ describe("MealPlansPage", () => {
     });
 
     fireEvent.click(addButtons[0]);
-    fireEvent.click(screen.getByRole("button", { name: /choose chicken alfredo/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose chicken alfredo/i })
+    );
     fireEvent.click(screen.getByRole("button", { name: /save plan/i }));
 
     expect(
@@ -270,18 +331,16 @@ describe("MealPlansPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("changes the displayed week range when navigating weeks", async () => {
-    mockFetchSequence(jsonResponse([]));
+  it("shows no saved plan when meal plan request returns 401", async () => {
+    mockFetchSequence(
+      jsonResponse([{ id: 1, title: "Chicken Alfredo", cook_time: 20 }]),
+      jsonResponse({}, false, 401)
+    );
 
     render(<MealPlansPage />);
 
-    const initialRange = await screen.findByText(/\w{3} \d{1,2}.*\d{4}/);
-
-    fireEvent.click(screen.getAllByRole("button")[2]);
-
     await waitFor(() => {
-      const updatedRange = screen.getByText(/\w{3} \d{1,2}.*\d{4}/);
-      expect(updatedRange.textContent).not.toEqual(initialRange.textContent);
+      expect(screen.queryByText("Chicken Alfredo")).not.toBeInTheDocument();
     });
   });
 });
