@@ -6,3 +6,4 @@ pydantic
 pytest
 bcrypt
 PyJWT
+gunicorn 
