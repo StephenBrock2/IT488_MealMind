@@ -420,19 +420,13 @@ def mem_recipe_repo_seed(ingredient_repo):
     "pinch",
     "slice"
     ]
-    class DataObject():
-        def __init__(self, name, quantity, unit):
-            self.name = name
-            self.quantity = quantity
-            self.unit = unit
-    ingredients = []
-    for n in range(random.randint(1, 10)):
-        ingredient = ingredient_repo.get_ingredient_by_id(ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())))
-        ingredient_data = {"name": ingredient.name, "quantity": random.randint(1, 6), "unit": random.choice(measurements)}
-        #data = DataObject(name= ingredient.name, quantity= random.randint(1, 6), unit= random.choice(measurements))
-        ingredients.append(ingredient_data)
 
     for i in recipes:
+        ingredients = []
+        for n in range(random.randint(1, 10)):
+            ingredient = ingredient_repo.get_ingredient_by_id(ingredient_id=random.choice(list(ingredient_repo.ingredients.keys())))
+            ingredient_data = {"name": ingredient.name, "quantity": random.randint(1, 6), "unit": random.choice(measurements)}
+            ingredients.append(ingredient_data)
         recipe_repo.create_recipe(recipe = Recipe(None, title=f"World's Best {i}", instructions= instructions, cook_time=random.choice(cook_times), user_id=None, username=None), ingredients=ingredients, ing_repo=ingredient_repo)
 
     return recipe_repo
