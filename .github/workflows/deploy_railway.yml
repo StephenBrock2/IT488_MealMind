@@ -30,4 +30,4 @@ jobs:
         run: railway up --detach
         working-directory: ./backend_api
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_IT488 }}
