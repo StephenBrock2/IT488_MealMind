@@ -262,15 +262,20 @@ def user_test_decorator(request: Request):
 @require_jwt
 def get_user_meal_plans(request: Request, repo: UserRepository = Depends(get_user_repo)):
     user_id = request.state.jwt_payload['id']
-    return_user_mealplans = repo.get_meal_plans_by_user(user_id=user_id)
-    return return_user_mealplans
+    meal_plans = repo.get_meal_plans_by_user(user_id=user_id)
+    return {str(mp.id): mp.plans for mp in meal_plans}
 
 @app.post("/api/meal_plan")
 @require_jwt
 def create_meal_plan(request: Request, meal_plan_data: MealPlanCreate, repo: UserRepository = Depends(get_user_repo)):
     user_id = request.state.jwt_payload['id']
-    mealplan = MealPlan(id=None, plans=meal_plan_data.plans)
-    return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
+    existing = repo.get_meal_plans_by_user(user_id=user_id)
+    if existing:
+        latest = max(existing, key=lambda mp: mp.id)
+        return_mealplan = repo.update_meal_plan(user_id=user_id, meal_plan_id=latest.id, meal_plan_data=meal_plan_data)
+    else:
+        mealplan = MealPlan(id=None, plans=meal_plan_data.plans)
+        return_mealplan = repo.create_meal_plan(user_id=user_id, meal_plan=mealplan)
     return return_mealplan
 
 @app.post("/api/meal_plan/{id}")
