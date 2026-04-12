@@ -33,21 +33,30 @@ In development mode:
 - FastAPI runs on port 8000
 - React connects to backend via `/api/*`
 
-### Start Backend
+### Start Backend api
 
-See docs/backend.md
+#### Start a virtual environment (optional)
 
-#### Backend run production
+#### install libraries
+change terminal path to the backend api folder
 
+`pip install -r requirements.txt`
 
-Navigate to backend_api/ and run:
-uvicorn main:app --reload
+#### run the api
+`fastapi dev .\main.py`
 
+#### access the api on browser
 Backend available at:
 http://127.0.0.1:8000
 
 Swagger docs:
 http://127.0.0.1:8000/docs
+
+#### Backend run production
+
+Navigate to backend_api/ and run:
+uvicorn main:app --reload
+
 
 ---
 
